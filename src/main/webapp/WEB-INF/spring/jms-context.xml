@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+       <!-- ActiveMQ beans -->
+       <bean id="connectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
+              <property name="brokerURL" value="${wrapper.messaging.broker.url}" />
+       </bean>
+
+       <bean id="surveyQueue" class="org.apache.activemq.command.ActiveMQQueue">
+              <constructor-arg value="${wrapper.messaging.broker.mailbox-destination}" />
+       </bean>
+
+       <bean id="jmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+              <property name="connectionFactory" ref="connectionFactory" />
+       </bean>
+       <bean id="producerBean" class="org.chip.ihl.surveymanager.jms.MessageProducerBean">
+              <property name="jmsTemplate" ref="jmsTemplate" />
+              <property name="destination" ref="surveyQueue" />
+       </bean>
+       <bean id="consumerBean" class="org.chip.ihl.surveymanager.jms.MessageConsumerBean">
+              <property name="jmsTemplate" ref="jmsTemplate" />
+              <property name="destination" ref="surveyQueue" />
+       </bean>
+
+
+</beans>

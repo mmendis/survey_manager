@@ -43,4 +43,5 @@ public class AppConfig {
                 environment.getRequiredProperty(PROPERTY_REDCAP_PORT)
         );
     }
+
 }
