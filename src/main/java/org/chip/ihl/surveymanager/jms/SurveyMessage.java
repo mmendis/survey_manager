@@ -14,6 +14,7 @@ public class SurveyMessage {
     private ArrayList<RedcapSurveyRecord> records;
 
     public SurveyMessage() {
+        this.records = new ArrayList<>();
     }
 
     public SurveyMessage(ArrayList<RedcapSurveyRecord> records) {

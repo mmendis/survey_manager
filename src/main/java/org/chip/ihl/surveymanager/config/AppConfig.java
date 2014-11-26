@@ -23,16 +23,11 @@ import javax.annotation.Resource;
 public class AppConfig {
     private static final String PROPERTY_REDCAP_HOST = "wrapper.redcap.host";
     private static final String PROPERTY_REDCAP_PROTOCOL = "wrapper.redcap.protocol";
-    private static final String PROPERTY_REDCAP_PORT = "80";
+    private static final String PROPERTY_REDCAP_PORT = "wrapper.redcap.port";
     private static final String PROPERTY_REDCAP_API_URI = "wrapper.redcap.api.uri";
 
     @Resource
     Environment environment;
-
-    @Bean
-    public ObjectMapper objectMapper() {
-        return new ObjectMapper();
-    }
 
     @Bean
     public RedcapService redcapService() {

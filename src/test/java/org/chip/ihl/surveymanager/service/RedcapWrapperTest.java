@@ -1,6 +1,7 @@
-package org.chip.ihl.surveymanager.redcap;
+package org.chip.ihl.surveymanager.service;
 
-import org.chip.ihl.surveymanager.service.RedcapWrapper;
+import org.chip.ihl.surveymanager.redcap.RedcapResult;
+import org.chip.ihl.surveymanager.redcap.RedcapSurveyRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.mockito.Mock;
@@ -19,6 +20,8 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+
+import static org.chip.ihl.surveymanager.redcap.RedcapData.sampleRedcapRecords;
 
 @Test
 @ContextConfiguration(locations = "file:src/main/webapp/WEB-INF/spring/application-config.xml")
@@ -216,12 +219,4 @@ public class RedcapWrapperTest extends AbstractTestNGSpringContextTests {
         return new ResponseEntity<>(sampleRedcapRecords(), HttpStatus.UNAUTHORIZED);
     }
 
-    private static RedcapSurveyRecord[] sampleRedcapRecords() {
-        RedcapSurveyRecord[] records = new RedcapSurveyRecord[3];
-        records[0] = new EAVSurveyRecord("record_1", "my_field_name_1", "my_event_name_1", "my_value_1");
-        records[1] = new EAVSurveyRecord("record_2", "my_field_name_2", "my_event_name_2", "my_value_2");
-        records[2] = new EAVSurveyRecord("record_3", "my_field_name_3", "my_event_name_3", "my_value_3");
-
-        return records;
-    }
 }
