@@ -4,7 +4,8 @@ import org.chip.ihl.surveymanager.jms.MessageConsumerBean;
 import org.chip.ihl.surveymanager.jms.MessageProducerBean;
 import org.chip.ihl.surveymanager.jms.SurveyMessage;
 import org.chip.ihl.surveymanager.redcap.RedcapSurveyRecord;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 
@@ -13,11 +14,15 @@ import java.util.ArrayList;
  * Created by sboykin on 11/25/2014.
  */
 public class MessageWrapper implements MessageService {
-    @Autowired
-    private MessageProducerBean producerBean;
+    private final Logger logger = LoggerFactory.getLogger(MessageWrapper.class);
 
-    @Autowired
+    private MessageProducerBean producerBean;
     private MessageConsumerBean consumerBean;
+
+    public MessageWrapper(MessageProducerBean producerBean, MessageConsumerBean consumerBean) {
+        this.producerBean = producerBean;
+        this.consumerBean = consumerBean;
+    }
 
     @Override
     public void send(ArrayList<RedcapSurveyRecord> records) {

@@ -9,16 +9,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
 import org.springframework.http.client.ClientHttpResponse;
-import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.http.converter.xml.MappingJackson2XmlHttpMessageConverter;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -33,6 +29,7 @@ public class RedcapWrapper implements RedcapService {
     private String protocol;
     private String uri;
     private String port;
+    private String apiToken;
 
     // hard-coding some parameters
     private final String REDCAP_DEFAULT_RECORD_FORMAT = "json";
@@ -48,12 +45,13 @@ public class RedcapWrapper implements RedcapService {
         objectMapper = new ObjectMapper();
     }
 
-    public RedcapWrapper(String hostname, String protocol, String uri, String port) {
+    public RedcapWrapper(String hostname, String protocol, String uri, String port, String apiToken) {
         this();
         this.hostname = hostname;
         this.protocol = protocol;
         this.uri = uri;
         this.port = port;
+        this.apiToken = apiToken;
     }
 
     /**
@@ -67,7 +65,7 @@ public class RedcapWrapper implements RedcapService {
      *
      */
     @Override
-    public RedcapResult pullRecordRequest(String apiToken, String recordType, String recordId, String surveyForm, String eventName) {
+    public RedcapResult pullRecordRequest(String recordType, String recordId, String surveyForm, String eventName) {
         if (recordType == null || recordType.isEmpty()) {
             throw new IllegalArgumentException("Record type cannot be null");
         }
@@ -135,12 +133,52 @@ public class RedcapWrapper implements RedcapService {
     }
 
     @Override
-    public RedcapResult pushRecordsRequest(String apiToken, String recordType, List<RedcapSurveyRecord> importRecords, String overwriteBehavior, String returnContent) {
+    public RedcapResult pushRecordsRequest(String recordType, List<RedcapSurveyRecord> importRecords, String overwriteBehavior, String returnContent) {
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
     // HELPERS
     private String buildBaseUrl(String protocol, String host, String port, String uri) {
         return String.format("%s://%s:%s/%s", protocol, host, port, uri);
+    }
+
+    public String getHostname() {
+        return hostname;
+    }
+
+    public void setHostname(String hostname) {
+        this.hostname = hostname;
+    }
+
+    public String getProtocol() {
+        return protocol;
+    }
+
+    public void setProtocol(String protocol) {
+        this.protocol = protocol;
+    }
+
+    public String getUri() {
+        return uri;
+    }
+
+    public void setUri(String uri) {
+        this.uri = uri;
+    }
+
+    public String getPort() {
+        return port;
+    }
+
+    public void setPort(String port) {
+        this.port = port;
+    }
+
+    public String getApiToken() {
+        return apiToken;
+    }
+
+    public void setApiToken(String apiToken) {
+        this.apiToken = apiToken;
     }
 }

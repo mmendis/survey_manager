@@ -11,7 +11,7 @@ import java.util.List;
  */
 public class RedcapResult {
     private HttpStatus status;
-    private List<RedcapSurveyRecord> records;
+    private ArrayList<RedcapSurveyRecord> records;
     private RedcapError redcapError;
 
     public RedcapResult() {
@@ -34,15 +34,11 @@ public class RedcapResult {
         this.status = status;
     }
 
-    public void setRecords(List<RedcapSurveyRecord> records) {
-        this.records = records;
-    }
-
     public HttpStatus getStatus() {
         return status;
     }
 
-    public List<RedcapSurveyRecord> getRecords() {
+    public ArrayList<RedcapSurveyRecord> getRecords() {
         return records;
     }
 

@@ -6,12 +6,14 @@ import org.chip.ihl.surveymanager.redcap.RedcapSurveyRecord;
 import org.chip.ihl.surveymanager.rest.controller.exception.ResourceNotFoundException;
 import org.chip.ihl.surveymanager.rest.controller.exception.UnacceptableException;
 import org.chip.ihl.surveymanager.rest.controller.exception.UnauthorizedException;
+import org.chip.ihl.surveymanager.service.MessageService;
 import org.chip.ihl.surveymanager.service.RedcapService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.ArrayList;
 
 /**
  * Web service endpoints for for REDCap interaction
@@ -25,27 +27,40 @@ public class SurveyManagerController {
     @Autowired
     protected RedcapService redcapService;
 
+
+    @Autowired
+    protected MessageService messageService;
+
+
     /**
-     * Retrieves REDCap records for a particular subject, augments with survey metadata
-     * @param recordId The ID of the subject (relative to project)
+     * Retrieves REDCap records for a particular subject and pushes to message queue
+     * @param recordId  The survey subject ID (relative to project)
      * @param recordType    The record format type e.g. 'eav' (default) or 'flat'
-     * @param projectToken  The API token for the project to pull from
+     //* @param projectToken  The API token for the project to pull from
      * @param eventName    (optional) The event name to pull from, if longitudnal study
      * @param surveyForm    (optional) The survey form to pull form
-     * @return  A list of Survey result records augmented with parameter metadata
      */
-    @RequestMapping(method = RequestMethod.POST, value = "/trigger/pull")
-    public List<RedcapSurveyRecord> pullRedcapRecords(
-            @RequestParam(value="recordId") String recordId,
+    @RequestMapping(value = "/trigger/pull", method = RequestMethod.POST, consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
+    @ResponseStatus(value = HttpStatus.OK)
+    public void pullRedcapRecords(
+            @RequestParam(value="record", required = false) String recordId,
             @RequestParam(value = "recordType", defaultValue = EAV_RECORD_TYPE) String recordType,
-            @RequestParam(value = "token", required = true) String projectToken,
-            @RequestParam(value = "eventName") String eventName,
-            @RequestParam(value = "surveyForm") String surveyForm) {
+            //@RequestParam(value = "token", required = true) String projectToken,
+            @RequestParam(value = "redcap_event_name", required = false) String eventName,
+            @RequestParam(value = "instrument", required = false) String surveyForm) {
 
-        RedcapResult redcapResult = redcapService.pullRecordRequest(projectToken, recordType, recordId, surveyForm, eventName);
+        RedcapResult redcapResult = redcapService.pullRecordRequest(recordType, recordId, surveyForm, eventName);
         switch (redcapResult.getStatus()) {
             case OK:
-                return redcapResult.getRecords();
+                ArrayList<RedcapSurveyRecord> records = redcapResult.getRecords();
+                if (records == null || records.isEmpty()) {
+                    throw new ResourceNotFoundException("REDCap returned no records to push.");
+                }
+                else {
+                    messageService.send(records);
+                    logger.info("Successfully pulled REDCap records and pushed to message queue.");
+                }
+                break;
             case NOT_FOUND:
                 throw new ResourceNotFoundException("Not found");
             case UNAUTHORIZED:
@@ -70,7 +85,7 @@ public class SurveyManagerController {
     @ResponseStatus(value = HttpStatus.NOT_FOUND, reason = "Records not found")
     @ExceptionHandler(ResourceNotFoundException.class)
     public void notFound(Exception ex) {
-        logger.error("Request not found", ex);
+        logger.warn("Request not found", ex);
     }
 
     @ResponseStatus(value = HttpStatus.UNAUTHORIZED, reason = "Unauthorized")

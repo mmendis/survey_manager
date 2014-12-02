@@ -18,12 +18,14 @@ public class WebAppInitializer implements WebApplicationInitializer {
 
     public static final String CONFIG_LOCATION = "org.chip.ihl.surveymanager.config";
     public static final String MAPPING_URL = "/*";
+    private static final String XML_CONTEXT_CONFIG_LOCATION = "/WEB-INF/spring/jms-context.xml";
 
     @Override
     public void onStartup(ServletContext servletContext) throws ServletException {
         WebApplicationContext context = getContext();
         servletContext.addListener(new ContextLoaderListener(context));
         ServletRegistration.Dynamic dispatcher = servletContext.addServlet("DispatcherServlet", new DispatcherServlet(context));
+        dispatcher.setInitParameter("contextConfigLocation", XML_CONTEXT_CONFIG_LOCATION);
         dispatcher.setLoadOnStartup(1);
         dispatcher.addMapping(MAPPING_URL);
     }

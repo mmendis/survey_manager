@@ -4,8 +4,9 @@ import org.chip.ihl.surveymanager.config.test.TestConfig;
 import org.chip.ihl.surveymanager.config.test.TestRestServiceWebConfig;
 import org.chip.ihl.surveymanager.redcap.EAVSurveyRecord;
 import org.chip.ihl.surveymanager.redcap.RedcapResult;
-import org.chip.ihl.surveymanager.service.RedcapService;
 import org.chip.ihl.surveymanager.redcap.RedcapSurveyRecord;
+import org.chip.ihl.surveymanager.service.MessageService;
+import org.chip.ihl.surveymanager.service.RedcapService;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,19 +25,17 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Test
 @ContextConfiguration(classes = {TestConfig.class, TestRestServiceWebConfig.class})
 @WebAppConfiguration
 public class SurveyManagerControllerTest extends AbstractTestNGSpringContextTests {
-  private final Logger logger = LoggerFactory.getLogger(SurveyManagerControllerTest.class);
+    private final Logger logger = LoggerFactory.getLogger(SurveyManagerControllerTest.class);
     protected MockMvc mockMvc;
 
     @Inject
@@ -45,22 +44,24 @@ public class SurveyManagerControllerTest extends AbstractTestNGSpringContextTest
     @Inject
     protected RedcapService redcapServiceMock;
 
+    @Inject
+    protected MessageService messageServiceMock;
+
     @BeforeTest
     public void setup() {
     }
 
     private final String REDCAP_PULL_URI = "/trigger/pull";
-    protected String EAV_RECORD_TYPE = "eav";
-    protected String EAV_RECORD_ID_1 = "rec_1";
-    protected String EAV_FIELD_NAME = "sample_fieldname";
-    protected String EAV_FIELD_VALUE_1 = "sample_fieldvalue_1";
-    protected String EAV_EVENT_NAME_1 = "event_name_1";
-    protected String EAV_SURVEY_FORM_1 = "sample_survey_form_1";
-    protected String EAV_SURVEY_VERSION_1 = "sample_survey_1";
+    private static final String EAV_RECORD_TYPE = "eav";
+    private static final String EAV_RECORD_ID_1 = "rec_1";
+    private static final String RECORD_NOT_IN_SYSTEM = "aRecordNotInSystem";
+    private static final String INVALID_RECORD_TYPE = "anInvalidRecordType";
+    private static final String EAV_FIELD_NAME = "sample_fieldname";
+    private static final String EAV_FIELD_VALUE_1 = "sample_fieldvalue_1";
+    private static final String EAV_EVENT_NAME_1 = "event_name_1";
+    private static final String EAV_SURVEY_FORM_1 = "sample_survey_form_1";
+    private static final String EAV_SURVEY_VERSION_1 = "sample_survey_1";
 
-    protected String EAV_RECORD_ID_2 = "rec_2";
-    protected String EAV_FIELD_VALUE_2 = "sample_fieldvalue_2";
-    protected String EAV_EVENT_NAME_2 = "event_name_2";
 
     protected RedcapResult getTestRedcapRecordsForSingleId() {
         List<RedcapSurveyRecord> records = new ArrayList<>(1);
@@ -72,6 +73,10 @@ public class SurveyManagerControllerTest extends AbstractTestNGSpringContextTest
         return new RedcapResult(HttpStatus.NOT_FOUND);
     }
 
+    protected RedcapResult getTestRedcapRecordsForEmptyRecords() {
+        return new RedcapResult(HttpStatus.OK);
+    }
+
     protected RedcapResult getTestRedcapRecordsForUnauthorizedToken() {
         return new RedcapResult(HttpStatus.UNAUTHORIZED);
     }
@@ -79,91 +84,136 @@ public class SurveyManagerControllerTest extends AbstractTestNGSpringContextTest
         return new RedcapResult(HttpStatus.FORBIDDEN);
     }
 
+    private void resetMocks() {
+        Mockito.reset(redcapServiceMock, messageServiceMock);
+    }
+
+//    @Test
+//    public void pullRedcapRecords_shouldReturnRecordsForSingleRecordId() throws Exception {
+//        resetMocks();
+//        mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+//
+//        RedcapResult redcapResult = getTestRedcapRecordsForSingleId();
+//        when(redcapServiceMock.pullRecordRequest(anyString(), eq(EAV_RECORD_ID_1), anyString(), eq(EAV_EVENT_NAME_1))).thenReturn(redcapResult);
+//
+//        mockMvc.perform(post(REDCAP_PULL_URI)
+//                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+//                        .accept(MediaType.APPLICATION_JSON)
+//                        .param("record", EAV_RECORD_ID_1)
+//                        .param("recordType", EAV_RECORD_TYPE)
+//                       // .param("token", "anyToken")
+//                        .param("redcap_event_name", EAV_EVENT_NAME_1)
+//                        .param("instrument", EAV_SURVEY_FORM_1)
+//        )
+//                .andExpect(status().isOk())
+//                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+//                .andExpect(jsonPath("$", hasSize(1)))
+//                .andExpect(jsonPath("$[0].record", is(EAV_RECORD_ID_1)))
+//                .andExpect(jsonPath("$[0].redcap_event_name", is(EAV_EVENT_NAME_1)))
+//                .andExpect(jsonPath("$[0].field_name", is(EAV_FIELD_NAME)))
+//                .andExpect(jsonPath("$[0].value", is(EAV_FIELD_VALUE_1
+////                        .andExpect(jsonPath("$[*].fieldValue", containsInAnyOrder(EAV_FIELD_VALUE_1
+//                )));
+//
+//    }
+
     @Test
-    public void pullRedcapRecords_shouldReturnRecordsForSingleId() throws Exception {
-        Mockito.reset(redcapServiceMock);
+    public void pullRedcapRecords_shouldReturnOkForSingleRecordId() throws Exception {
+        resetMocks();
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
 
         RedcapResult redcapResult = getTestRedcapRecordsForSingleId();
-        when(redcapServiceMock.pullRecordRequest(anyString(), anyString(), eq(EAV_RECORD_ID_1), anyString(), eq(EAV_EVENT_NAME_1))).thenReturn(redcapResult);
-
-        mockMvc.perform(post(REDCAP_PULL_URI)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .param("recordId", EAV_RECORD_ID_1)
-                        .param("recordType", EAV_RECORD_TYPE)
-                        .param("token", "anyToken")
-                        .param("eventName", EAV_EVENT_NAME_1)
-                        .param("surveyForm", EAV_SURVEY_FORM_1)
-        )
-                .andExpect(status().isOk())
-                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].record", is(EAV_RECORD_ID_1)))
-                .andExpect(jsonPath("$[0].redcap_event_name", is(EAV_EVENT_NAME_1)))
-                .andExpect(jsonPath("$[0].field_name", is(EAV_FIELD_NAME)))
-                .andExpect(jsonPath("$[0].value", is(EAV_FIELD_VALUE_1
-//                        .andExpect(jsonPath("$[*].fieldValue", containsInAnyOrder(EAV_FIELD_VALUE_1
-                )));
-
-    }
-
-    @Test
-    public void pullRedcapRecords_shouldReturnNotFound() throws Exception {
-        Mockito.reset(redcapServiceMock);
-        mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
-
-        RedcapResult redcapResult = getTestRedcapRecordsForNotFound();
-        when(redcapServiceMock.pullRecordRequest(anyString(), anyString(), eq(EAV_RECORD_ID_1), anyString(), eq(EAV_EVENT_NAME_1))).thenReturn(redcapResult);
+        when(redcapServiceMock.pullRecordRequest(anyString(), eq(EAV_RECORD_ID_1), anyString(), eq(EAV_EVENT_NAME_1))).thenReturn(redcapResult);
 
         mockMvc.perform(post(REDCAP_PULL_URI)
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                         .accept(MediaType.APPLICATION_JSON)
-                        .param("recordId", EAV_RECORD_ID_1)
+                        .param("record", EAV_RECORD_ID_1)
                         .param("recordType", EAV_RECORD_TYPE)
-                        .param("token", "anyToken")
-                        .param("eventName", EAV_EVENT_NAME_1)
-                        .param("surveyForm", EAV_SURVEY_FORM_1)
+                                // .param("token", "anyToken")
+                        .param("redcap_event_name", EAV_EVENT_NAME_1)
+                        .param("instrument", EAV_SURVEY_FORM_1)
+        )
+                .andExpect(status().isOk());
+
+    }
+
+    @Test
+    public void pullRedcapRecords_shouldReturnNotFoundWhenRedcapResultNotFound() throws Exception {
+        resetMocks();
+        mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+
+        RedcapResult redcapResult = getTestRedcapRecordsForNotFound();
+        when(redcapServiceMock.pullRecordRequest(anyString(), eq(EAV_RECORD_ID_1), anyString(), eq(EAV_EVENT_NAME_1))).thenReturn(redcapResult);
+
+        mockMvc.perform(post(REDCAP_PULL_URI)
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .param("record", EAV_RECORD_ID_1)
+                        .param("recordType", EAV_RECORD_TYPE)
+//                        .param("token", "anyToken")
+                        .param("redcap_event_name", EAV_EVENT_NAME_1)
+                        .param("instrument", EAV_SURVEY_FORM_1)
         )
                 .andExpect(status().isNotFound());
     }
 
     @Test
-    public void pullRedcapRecords_shouldReturnBadRequest() throws Exception {
-        Mockito.reset(redcapServiceMock);
+    public void pullRedcapRecords_shouldReturnNotFoundWhenRedcapResultRecordsEmpty() throws Exception {
+        resetMocks();
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
 
-        RedcapResult redcapResult = getTestRedcapRecordsForNotFound();
-        when(redcapServiceMock.pullRecordRequest(anyString(), anyString(), eq(EAV_RECORD_ID_1), anyString(), eq(EAV_EVENT_NAME_1))).thenThrow(IllegalArgumentException.class);
+        RedcapResult redcapResult = getTestRedcapRecordsForEmptyRecords();
+        when(redcapServiceMock.pullRecordRequest(anyString(), eq(RECORD_NOT_IN_SYSTEM), anyString(), anyString())).thenReturn(redcapResult);
 
         mockMvc.perform(post(REDCAP_PULL_URI)
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                         .accept(MediaType.APPLICATION_JSON)
-                        .param("recordId", EAV_RECORD_ID_1)
+                        .param("record", RECORD_NOT_IN_SYSTEM)
                         .param("recordType", EAV_RECORD_TYPE)
-                        .param("token", "anyToken")
-                        .param("eventName", EAV_EVENT_NAME_1)
-                        .param("surveyForm", EAV_SURVEY_FORM_1)
+//                        .param("token", "anyToken")
+                        .param("redcap_event_name", EAV_EVENT_NAME_1)
+                        .param("instrument", EAV_SURVEY_FORM_1)
+        )
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void pullRedcapRecords_shouldReturnBadRequestWhenInvalidRecordType() throws Exception {
+        resetMocks();
+        mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+
+        when(redcapServiceMock.pullRecordRequest(eq(INVALID_RECORD_TYPE), eq(EAV_RECORD_ID_1), anyString(), eq(EAV_EVENT_NAME_1))).thenThrow(IllegalArgumentException.class);
+
+        mockMvc.perform(post(REDCAP_PULL_URI)
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .param("record", EAV_RECORD_ID_1)
+                        .param("recordType", INVALID_RECORD_TYPE)
+                        //.param("token", "anyToken")
+                        .param("redcap_event_name", EAV_EVENT_NAME_1)
+                        .param("instrument", EAV_SURVEY_FORM_1)
         )
                 .andExpect(status().isBadRequest());
     }
 
-    @Test
-    public void pullRedcapRecords_shouldReturnUnauthorized() throws Exception {
-        Mockito.reset(redcapServiceMock);
-        mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
-
-        RedcapResult redcapResult = getTestRedcapRecordsForUnauthorizedToken();
-        when(redcapServiceMock.pullRecordRequest(anyString(), anyString(), eq(EAV_RECORD_ID_1), anyString(), eq(EAV_EVENT_NAME_1))).thenReturn(getTestRedcapRecordsForUnauthorizedToken());
-
-        mockMvc.perform(post(REDCAP_PULL_URI)
-                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .param("recordId", EAV_RECORD_ID_1)
-                        .param("recordType", EAV_RECORD_TYPE)
-                        .param("token", "anyToken")
-                        .param("eventName", EAV_EVENT_NAME_1)
-                        .param("surveyForm", EAV_SURVEY_FORM_1)
-        )
-                .andExpect(status().isUnauthorized());
-    }
+//    @Test
+//    public void pullRedcapRecords_shouldReturnUnauthorized() throws Exception {
+//        resetMocks();
+//        mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+//
+//        RedcapResult redcapResult = getTestRedcapRecordsForUnauthorizedToken();
+//        when(redcapServiceMock.pullRecordRequest(anyString(), eq(EAV_RECORD_ID_1), anyString(), eq(EAV_EVENT_NAME_1))).thenReturn(getTestRedcapRecordsForUnauthorizedToken());
+//
+//        mockMvc.perform(post(REDCAP_PULL_URI)
+//                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+//                        .accept(MediaType.APPLICATION_JSON)
+//                        .param("record", EAV_RECORD_ID_1)
+//                        .param("recordType", EAV_RECORD_TYPE)
+//                       // .param("token", "anyToken")
+//                        .param("redcap_event_name", EAV_EVENT_NAME_1)
+//                        .param("instrument", EAV_SURVEY_FORM_1)
+//        )
+//                .andExpect(status().isUnauthorized());
+//    }
 }

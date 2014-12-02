@@ -74,24 +74,20 @@ public class RedcapWrapperTest extends AbstractTestNGSpringContextTests {
     @Test
     public void whenValidParametersPullRecordRequestReturnsOk() throws Exception {
         RedcapWrapper wrapper = getWrapperFromParams();
-        //HttpEntity<EAVSurveyRecord> testEntity = setupTestHttpEntity();
-       // EAVSurveyRecord[] goodResponseArray = goodResponse().getBody();
-        // when(mockRestTemplate.exchange(anyString(), eq(HttpMethod.POST), any(HttpEntity.class), eq(EAVSurveyRecord[].class))).thenReturn(goodResponse());
-        RedcapResult result = wrapper.pullRecordRequest(apiToken, EAV_RECORD_TYPE, DEFAULT_RECORD_ID, DEFAULT_SURVEY_FORM, DEFAULT_EVENT_NAME);
+        RedcapResult result = wrapper.pullRecordRequest(EAV_RECORD_TYPE, DEFAULT_RECORD_ID, DEFAULT_SURVEY_FORM, DEFAULT_EVENT_NAME);
         Assert.assertEquals(HttpStatus.OK, result.getStatus());
-        //Assert.assertEquals(goodResponseArray.length, result.getRecords().size());
     }
 
     @Test(expectedExceptions = IllegalArgumentException.class)
     public void whenMissingRecordTypePullRecordRequestThrowsException() {
         RedcapWrapper wrapper = getWrapperFromParams();
-        RedcapResult result = wrapper.pullRecordRequest(apiToken, null, DEFAULT_RECORD_ID, DEFAULT_SURVEY_FORM, DEFAULT_EVENT_NAME);
+        RedcapResult result = wrapper.pullRecordRequest(null, DEFAULT_RECORD_ID, DEFAULT_SURVEY_FORM, DEFAULT_EVENT_NAME);
     }
 
     @Test(expectedExceptions = IllegalArgumentException.class)
     public void whenInvalidRecordTypePullRecordRequestThrowsException() {
         RedcapWrapper wrapper = getWrapperFromParams();
-        RedcapResult result = wrapper.pullRecordRequest(apiToken, "myinvalidrecordtype", DEFAULT_RECORD_ID, DEFAULT_SURVEY_FORM, DEFAULT_EVENT_NAME);
+        RedcapResult result = wrapper.pullRecordRequest("myinvalidrecordtype", DEFAULT_RECORD_ID, DEFAULT_SURVEY_FORM, DEFAULT_EVENT_NAME);
     }
 
     /**
@@ -100,15 +96,19 @@ public class RedcapWrapperTest extends AbstractTestNGSpringContextTests {
     @Test
     public void whenMissingRecordIdPullRecordRequestReturnsOk() {
         RedcapWrapper wrapper = getWrapperFromParams();
-        RedcapResult result = wrapper.pullRecordRequest(apiToken, EAV_RECORD_TYPE, null, DEFAULT_SURVEY_FORM, DEFAULT_EVENT_NAME);
+        RedcapResult result = wrapper.pullRecordRequest(EAV_RECORD_TYPE, null, DEFAULT_SURVEY_FORM, DEFAULT_EVENT_NAME);
         Assert.assertEquals(HttpStatus.OK, result.getStatus());
     }
 
     @Test
+    /**
+     * TODO This test is flawed because the test doesn't account for the case when there are no records in the project - fix
+     */
     public void whenRecordIdNotFoundPullRecordRequestReturnsEmptyOk() throws Exception {
         RedcapWrapper wrapper = getWrapperFromParams();
-        RedcapResult result = wrapper.pullRecordRequest(apiToken, EAV_RECORD_TYPE, "idNotInSystem", DEFAULT_SURVEY_FORM, DEFAULT_EVENT_NAME);
+        RedcapResult result = wrapper.pullRecordRequest(EAV_RECORD_TYPE, "idNotInSystem", DEFAULT_SURVEY_FORM, DEFAULT_EVENT_NAME);
         Assert.assertEquals(HttpStatus.OK, result.getStatus());
+        Assert.assertTrue(result.getRecords().isEmpty());
     }
 
     /**
@@ -117,7 +117,7 @@ public class RedcapWrapperTest extends AbstractTestNGSpringContextTests {
     @Test
     public void whenEventFoundPullRecordRequestReturnsThoseRecordIDs() {
         RedcapWrapper wrapper = getWrapperFromParams();
-        RedcapResult result = wrapper.pullRecordRequest(apiToken, EAV_RECORD_TYPE, DEFAULT_RECORD_ID, DEFAULT_SURVEY_FORM, DEFAULT_EVENT_NAME);
+        RedcapResult result = wrapper.pullRecordRequest(EAV_RECORD_TYPE, DEFAULT_RECORD_ID, DEFAULT_SURVEY_FORM, DEFAULT_EVENT_NAME);
         Assert.assertEquals(HttpStatus.OK, result.getStatus());
         List<RedcapSurveyRecord> records = result.getRecords();
         if (records != null) {
@@ -127,30 +127,13 @@ public class RedcapWrapperTest extends AbstractTestNGSpringContextTests {
         }
     }
 
-//    @Test
-//    public void whenMissingSurveyFormPullRecordRequestReturnsOk() throws Exception {
-//        RedcapWrapper wrapper = getWrapperFromParams();
-//        RedcapResult result = wrapper.pullRecordRequest(EAV_RECORD_TYPE, DEFAULT_RECORD_ID, null, DEFAULT_EVENT_NAME);
-//        Assert.assertEquals(HttpStatus.OK, result.getStatus());
-//    }
-//
-    // NOTE This test does not appear to do what it suggests in REDCap....
-    // TODO Check REDCap documentation, groups to see if this is so and adjust; commenting out for now
-//    @Test
-//    public void whenSurveyFormNotFoundPullRecordRequestReturnsEmptyOk() {
-//        RedcapWrapper wrapper = getWrapperFromParams();
-//        RedcapResult result = wrapper.pullRecordRequest(EAV_RECORD_TYPE, DEFAULT_RECORD_ID, "aFormThatWontBeFound", DEFAULT_EVENT_NAME);
-//        Assert.assertEquals(HttpStatus.OK, result.getStatus());
-//        Assert.assertEquals(true, result.getRecords().isEmpty());
-//    }
-
     /**
      * Missing event means all events should be returned
      */
     @Test
     public void whenMissingEventPullRecordRequestReturnsOk() throws Exception {
         RedcapWrapper wrapper = getWrapperFromParams();
-        RedcapResult result = wrapper.pullRecordRequest(apiToken, EAV_RECORD_TYPE, DEFAULT_RECORD_ID, DEFAULT_SURVEY_FORM, null);
+        RedcapResult result = wrapper.pullRecordRequest(EAV_RECORD_TYPE, DEFAULT_RECORD_ID, DEFAULT_SURVEY_FORM, null);
         Assert.assertEquals(HttpStatus.OK, result.getStatus());
     }
 
@@ -160,7 +143,7 @@ public class RedcapWrapperTest extends AbstractTestNGSpringContextTests {
     @Test
     public void whenEventNotFoundPullRecordRequestReturns404OrEmptyOk() {
         RedcapWrapper wrapper = getWrapperFromParams();
-        RedcapResult result = wrapper.pullRecordRequest(apiToken, EAV_RECORD_TYPE, DEFAULT_RECORD_ID, DEFAULT_SURVEY_FORM, "anEventThatWontBeFound");
+        RedcapResult result = wrapper.pullRecordRequest(EAV_RECORD_TYPE, DEFAULT_RECORD_ID, DEFAULT_SURVEY_FORM, "anEventThatWontBeFound");
         Assert.assertEquals(true, (HttpStatus.NOT_FOUND == result.getStatus()) || result.getRecords().isEmpty());
     }
 
@@ -170,7 +153,7 @@ public class RedcapWrapperTest extends AbstractTestNGSpringContextTests {
     @Test
     public void whenEventFoundPullRecordRequestReturnsThoseEventRecords() {
         RedcapWrapper wrapper = getWrapperFromParams();
-        RedcapResult result = wrapper.pullRecordRequest(apiToken, EAV_RECORD_TYPE, DEFAULT_RECORD_ID, DEFAULT_SURVEY_FORM, DEFAULT_EVENT_NAME);
+        RedcapResult result = wrapper.pullRecordRequest(EAV_RECORD_TYPE, DEFAULT_RECORD_ID, DEFAULT_SURVEY_FORM, DEFAULT_EVENT_NAME);
         Assert.assertEquals(HttpStatus.OK, result.getStatus());
         List<RedcapSurveyRecord> records = result.getRecords();
         if (records != null) {
@@ -183,23 +166,26 @@ public class RedcapWrapperTest extends AbstractTestNGSpringContextTests {
     @Test(expectedExceptions = IllegalArgumentException.class)
     public void whenMissingTokenPullRecordRequestThrowsException() throws Exception {
         RedcapWrapper wrapper = getWrapperFromParams();
-        RedcapResult result = wrapper.pullRecordRequest(null, EAV_RECORD_TYPE, DEFAULT_RECORD_ID, DEFAULT_SURVEY_FORM, DEFAULT_EVENT_NAME);
+        wrapper.setApiToken(null);
+        RedcapResult result = wrapper.pullRecordRequest(EAV_RECORD_TYPE, DEFAULT_RECORD_ID, DEFAULT_SURVEY_FORM, DEFAULT_EVENT_NAME);
     }
 
     @Test
     public void whenInvalidTokenPullRecordRequestReturns403() throws Exception {
         RedcapWrapper wrapper = getWrapperFromParams();
-        RedcapResult result = wrapper.pullRecordRequest("myInvalidToken", EAV_RECORD_TYPE, DEFAULT_RECORD_ID, DEFAULT_SURVEY_FORM, DEFAULT_EVENT_NAME);
+        wrapper.setApiToken("anInvalidToken");
+        RedcapResult result = wrapper.pullRecordRequest(EAV_RECORD_TYPE, DEFAULT_RECORD_ID, DEFAULT_SURVEY_FORM, DEFAULT_EVENT_NAME);
         Assert.assertEquals(HttpStatus.FORBIDDEN, result.getStatus());
     }
 
     // TODO There should also be test coverage to check the survey form, but this doesn't work as expected in REDCap (v. 6.2.0)
-    // TODO Should have a check that pull request on specific form only returns fields from that form, but that would b
+    // TODO Should have a check that pull request on specific form only returns fields from that form,
+    // TODO but it appears REDCap returns all forms if specified form not found (should verify))
 
 
     // HELPERS
     private RedcapWrapper getWrapperFromParams() {
-        return new RedcapWrapper(host, protocol, apiUri, port);
+        return new RedcapWrapper(host, protocol, apiUri, port, apiToken);
     }
 
     private HttpEntity<RedcapSurveyRecord> setupTestHttpEntity() {

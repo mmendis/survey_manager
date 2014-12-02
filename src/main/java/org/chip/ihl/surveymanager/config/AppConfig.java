@@ -1,6 +1,5 @@
 package org.chip.ihl.surveymanager.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.chip.ihl.surveymanager.service.RedcapService;
 import org.chip.ihl.surveymanager.service.RedcapWrapper;
 import org.springframework.context.annotation.Bean;
@@ -13,7 +12,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import javax.annotation.Resource;
 
 /**
- * Application context class
+ * Main application context class
  * Created by sboykin on 11/21/2014.
  */
 @Configuration
@@ -25,6 +24,7 @@ public class AppConfig {
     private static final String PROPERTY_REDCAP_PROTOCOL = "wrapper.redcap.protocol";
     private static final String PROPERTY_REDCAP_PORT = "wrapper.redcap.port";
     private static final String PROPERTY_REDCAP_API_URI = "wrapper.redcap.api.uri";
+    private static final String PROPERTY_REDCAP_API_TOKEN = "wrapper.redcap.api.token";
 
     @Resource
     Environment environment;
@@ -35,8 +35,8 @@ public class AppConfig {
                 environment.getRequiredProperty(PROPERTY_REDCAP_HOST),
                 environment.getRequiredProperty(PROPERTY_REDCAP_PROTOCOL),
                 environment.getRequiredProperty(PROPERTY_REDCAP_API_URI),
-                environment.getRequiredProperty(PROPERTY_REDCAP_PORT)
+                environment.getRequiredProperty(PROPERTY_REDCAP_PORT),
+                environment.getRequiredProperty(PROPERTY_REDCAP_API_TOKEN)
         );
     }
-
 }
