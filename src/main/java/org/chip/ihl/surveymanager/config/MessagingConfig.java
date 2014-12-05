@@ -29,6 +29,7 @@ public class MessagingConfig {
     private static final String PROPERTY_BROKER_USER ="wrapper.messaging.broker.username" ;
     private static final String PROPERTY_BROKER_PASSWORD = "wrapper.messaging.broker.password";
     private static final String PROPERTY_BROKER_QUEUE = "wrapper.messaging.broker.mailbox-destination";
+    private static final String PROPERTY_BROKER_SEND_TIMEOUT = "wrapper.messaging.broker.send.timeout";
 
 
     @Bean
@@ -37,6 +38,7 @@ public class MessagingConfig {
         factory.setBrokerURL(environment.getRequiredProperty(PROPERTY_BROKER_URL));
         factory.setUserName(environment.getRequiredProperty(PROPERTY_BROKER_USER));
         factory.setPassword(environment.getRequiredProperty(PROPERTY_BROKER_PASSWORD));
+        factory.setSendTimeout(Integer.parseInt(environment.getRequiredProperty(PROPERTY_BROKER_SEND_TIMEOUT)));
         return factory;
     }
 

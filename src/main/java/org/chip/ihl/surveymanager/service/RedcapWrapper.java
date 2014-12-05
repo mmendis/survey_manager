@@ -123,11 +123,17 @@ public class RedcapWrapper implements RedcapService {
                     redcapResult.getRecords().addAll(Arrays.asList(records));
                 }
             } else {
-                RedcapError redcapError = objectMapper.readValue(responseStr, RedcapError.class);
-                redcapResult.setRedcapError(redcapError);
+                //RedcapError redcapError = objectMapper.readValue(responseStr, RedcapError.class);
+                redcapResult.setRedcapError(new RedcapError(responseStr));
             }
         } catch (IOException ie) {
-            throw new RuntimeException(ie);
+            logger.error("Unexpected IO exception", ie);
+            if (redcapResult.getStatus() == null) { redcapResult.setStatus(HttpStatus.INTERNAL_SERVER_ERROR); }
+            redcapResult.setRedcapError(new RedcapError(ie.getMessage()));
+        } catch (Exception e) {
+            if (redcapResult.getStatus() == null) { redcapResult.setStatus(HttpStatus.INTERNAL_SERVER_ERROR); }
+            logger.error("Unexpected exception", e);
+            redcapResult.setRedcapError(new RedcapError(e.getMessage()));
         }
         return redcapResult;
     }

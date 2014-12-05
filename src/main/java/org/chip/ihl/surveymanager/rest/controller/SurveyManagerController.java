@@ -54,11 +54,16 @@ public class SurveyManagerController {
             case OK:
                 ArrayList<RedcapSurveyRecord> records = redcapResult.getRecords();
                 if (records == null || records.isEmpty()) {
-                    throw new ResourceNotFoundException("REDCap returned no records to push.");
+                    logger.warn("REDCap returned no records to push for ID: " + recordId);
+                   //throw new ResourceNotFoundException("REDCap returned no records to push.");
                 }
                 else {
-                    messageService.send(records);
-                    logger.info("Successfully pulled REDCap records and pushed to message queue.");
+                    try {
+                        messageService.send(records);
+                        logger.info("Successfully pulled REDCap records and pushed to message queue.");
+                    } catch (Exception me) {
+                        logger.error("Problem sending pulled REDCap records to survey results queue", me);
+                    }
                 }
                 break;
             case NOT_FOUND:

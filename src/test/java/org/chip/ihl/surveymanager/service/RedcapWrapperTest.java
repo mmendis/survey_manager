@@ -23,6 +23,10 @@ import java.util.Properties;
 
 import static org.chip.ihl.surveymanager.redcap.RedcapData.sampleRedcapRecords;
 
+/**
+ * Tests REDCap wrapper functionality
+ * Assumes configuration a) points to a valid REDCap server, b) has a valid, active API token and c) points to a project that has records in it (this part needs improvement)
+ */
 @Test
 @ContextConfiguration(locations = "file:src/main/webapp/WEB-INF/spring/application-config.xml")
 public class RedcapWrapperTest extends AbstractTestNGSpringContextTests {
@@ -176,6 +180,33 @@ public class RedcapWrapperTest extends AbstractTestNGSpringContextTests {
         wrapper.setApiToken("anInvalidToken");
         RedcapResult result = wrapper.pullRecordRequest(EAV_RECORD_TYPE, DEFAULT_RECORD_ID, DEFAULT_SURVEY_FORM, DEFAULT_EVENT_NAME);
         Assert.assertEquals(HttpStatus.FORBIDDEN, result.getStatus());
+    }
+
+    @Test
+    public void whenInvalidRedcapHostnamePullRecordRequestReturns500() {
+        RedcapWrapper wrapper = getWrapperFromParams();
+        // Test bad hostname
+        wrapper.setHostname("aBadHostXYZ");
+        RedcapResult result = wrapper.pullRecordRequest(EAV_RECORD_TYPE, DEFAULT_RECORD_ID, DEFAULT_SURVEY_FORM, DEFAULT_EVENT_NAME);
+        Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, result.getStatus());
+    }
+
+    @Test
+    public void whenInvalidRedcapPortPullRecordRequestReturns500() {
+        RedcapWrapper wrapper = getWrapperFromParams();
+        // Test bad port
+        wrapper.setPort("3");
+        RedcapResult result = wrapper.pullRecordRequest(EAV_RECORD_TYPE, DEFAULT_RECORD_ID, DEFAULT_SURVEY_FORM, DEFAULT_EVENT_NAME);
+        Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, result.getStatus());
+    }
+
+    @Test
+    public void whenInvalidRedcapApiUriPullRecordRequestReturns404() {
+        RedcapWrapper wrapper = getWrapperFromParams();
+        // Test bad API uri
+        wrapper.setUri("aBadRedcapURIHere");
+        RedcapResult result = wrapper.pullRecordRequest(EAV_RECORD_TYPE, DEFAULT_RECORD_ID, DEFAULT_SURVEY_FORM, DEFAULT_EVENT_NAME);
+        Assert.assertEquals(HttpStatus.NOT_FOUND, result.getStatus());
     }
 
     // TODO There should also be test coverage to check the survey form, but this doesn't work as expected in REDCap (v. 6.2.0)

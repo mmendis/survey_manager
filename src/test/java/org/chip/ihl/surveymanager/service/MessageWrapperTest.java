@@ -12,6 +12,11 @@ import org.testng.annotations.Test;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+/**
+ * Tests interaction with messaging queue
+ * Assumes configuration points to a valid MQ host location.  Failing tests can be caused to improper configuration
+ * or a problem with external MQ
+ */
 @Test
 @ContextConfiguration(classes = MessagingConfig.class)
 public class MessageWrapperTest extends AbstractTestNGSpringContextTests {

@@ -159,7 +159,7 @@ public class SurveyManagerControllerTest extends AbstractTestNGSpringContextTest
     }
 
     @Test
-    public void pullRedcapRecords_shouldReturnNotFoundWhenRedcapResultRecordsEmpty() throws Exception {
+    public void pullRedcapRecords_shouldReturnOkWhenRedcapResultRecordsEmpty() throws Exception {
         resetMocks();
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
 
@@ -175,7 +175,7 @@ public class SurveyManagerControllerTest extends AbstractTestNGSpringContextTest
                         .param("redcap_event_name", EAV_EVENT_NAME_1)
                         .param("instrument", EAV_SURVEY_FORM_1)
         )
-                .andExpect(status().isNotFound());
+                .andExpect(status().isOk());
     }
 
     @Test
