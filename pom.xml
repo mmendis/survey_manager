@@ -8,11 +8,6 @@
   <name>survey-manager Maven Webapp</name>
   <url>http://maven.apache.org</url>
 
-  <!--<parent>-->
-    <!--<groupId>org.springframework.boot</groupId>-->
-    <!--<artifactId>spring-boot-starter-parent</artifactId>-->
-    <!--<version>1.1.9.RELEASE</version>-->
-  <!--</parent>-->
   <dependencies>
     <dependency>
       <groupId>org.springframework</groupId>
@@ -23,12 +18,8 @@
       <groupId>javax.servlet</groupId>
       <artifactId>javax.servlet-api</artifactId>
       <version>3.1.0</version>
+      <scope>provided</scope>
     </dependency>
-    <!--<dependency>-->
-      <!--<groupId>org.springframework.boot</groupId>-->
-      <!--<artifactId>spring-boot-starter-web</artifactId>-->
-      <!--<version>1.1.9.RELEASE</version>-->
-    <!--</dependency>-->
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-test</artifactId>
@@ -114,19 +105,14 @@
       <artifactId>activemq-broker</artifactId>
       <version>5.10.0</version>
     </dependency>
-    <!--<dependency>-->
-      <!--<groupId>org.slf4j</groupId>-->
-      <!--<artifactId>slf4j-log4j12</artifactId>-->
-      <!--<version>1.7.7</version>-->
-    <!--</dependency>-->
+    <dependency>
+      <groupId>commons-configuration</groupId>
+      <artifactId>commons-configuration</artifactId>
+      <version>1.10</version>
+    </dependency>
   </dependencies>
   <build>
     <plugins>
-      <!--<plugin>-->
-        <!--<groupId>org.springframework.boot</groupId>-->
-        <!--<artifactId>spring-boot-maven-plugin</artifactId>-->
-        <!--<version>1.1.9.RELEASE</version>-->
-      <!--</plugin>-->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>

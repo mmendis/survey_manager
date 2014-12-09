@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.chip.ihl.surveymanager.redcap.RedcapError;
 import org.chip.ihl.surveymanager.redcap.RedcapResult;
 import org.chip.ihl.surveymanager.redcap.RedcapSurveyRecord;
+import org.chip.ihl.surveymanager.rest.exception.UnreachableException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
@@ -24,11 +25,8 @@ import java.util.List;
  */
 public class RedcapWrapper implements RedcapService {
     private final Logger logger = LoggerFactory.getLogger(RedcapWrapper.class);
+    public static final String REDCAP_API_URI = "api/";
 
-    private String hostname;
-    private String protocol;
-    private String uri;
-    private String port;
     private String apiToken;
 
     // hard-coding some parameters
@@ -45,12 +43,8 @@ public class RedcapWrapper implements RedcapService {
         objectMapper = new ObjectMapper();
     }
 
-    public RedcapWrapper(String hostname, String protocol, String uri, String port, String apiToken) {
+    public RedcapWrapper(String apiToken) {
         this();
-        this.hostname = hostname;
-        this.protocol = protocol;
-        this.uri = uri;
-        this.port = port;
         this.apiToken = apiToken;
     }
 
@@ -65,15 +59,18 @@ public class RedcapWrapper implements RedcapService {
      *
      */
     @Override
-    public RedcapResult pullRecordRequest(String recordType, String recordId, String surveyForm, String eventName) {
+    public RedcapResult pullRecordRequest(String redcapBaseUrl, String recordType, String recordId, String surveyForm, String eventName) {
+        if (redcapBaseUrl == null || redcapBaseUrl.isEmpty()) {
+            throw new IllegalArgumentException("REDCap base url cannot be empty");
+        }
         if (recordType == null || recordType.isEmpty()) {
-            throw new IllegalArgumentException("Record type cannot be null");
+            throw new IllegalArgumentException("Record type cannot be empty");
         }
         if (!recordType.equalsIgnoreCase(REDCAP_PARAM_VALUE_RECORD_EAV_VALUE) && !recordType.equalsIgnoreCase(REDCAP_PARAM_VALUE_RECORD_FLAT_VALUE)) {
             throw new IllegalArgumentException(String.format("Record type must be one of the following: {%s, %s}", REDCAP_PARAM_VALUE_RECORD_EAV_VALUE, REDCAP_PARAM_VALUE_RECORD_FLAT_VALUE));
         }
         if (apiToken == null || apiToken.isEmpty()) {
-            throw new IllegalArgumentException(String.format("REDCap API token must not be null"));
+            throw new IllegalArgumentException(String.format("REDCap API token must not be empty"));
         }
 
         RestTemplate restTemplate = new RestTemplate();
@@ -111,8 +108,15 @@ public class RedcapWrapper implements RedcapService {
 
         // make request (POST)
         try {
-            String redcapUrl = buildBaseUrl(protocol, hostname, port, uri);
-            ResponseEntity<String> responseEntity = restTemplate.exchange(redcapUrl, HttpMethod.POST, requestEntity, String.class);
+            // String redcapUrl = buildBaseUrl(protocol, hostname, port, uri);
+            String redcapApiUrl = buildRedcapApiUri(redcapBaseUrl);
+            logger.debug(String.format("Making REDCap call to url: %s; with http params: %s", redcapApiUrl, requestEntity));
+            ResponseEntity<String> responseEntity;
+            try {
+                responseEntity = restTemplate.exchange(redcapApiUrl, HttpMethod.POST, requestEntity, String.class);
+            } catch (Exception e) {
+                throw new UnreachableException(e);
+            }
             String responseStr = responseEntity.getBody();
 
             logger.info("Response body: " + responseStr);
@@ -130,6 +134,9 @@ public class RedcapWrapper implements RedcapService {
             logger.error("Unexpected IO exception", ie);
             if (redcapResult.getStatus() == null) { redcapResult.setStatus(HttpStatus.INTERNAL_SERVER_ERROR); }
             redcapResult.setRedcapError(new RedcapError(ie.getMessage()));
+        } catch (UnreachableException ue) {
+            logger.error("Problem connecting to REDCap URI", ue);
+            if (redcapResult.getStatus() == null) { redcapResult.setStatus(HttpStatus.NOT_FOUND); }
         } catch (Exception e) {
             if (redcapResult.getStatus() == null) { redcapResult.setStatus(HttpStatus.INTERNAL_SERVER_ERROR); }
             logger.error("Unexpected exception", e);
@@ -148,43 +155,23 @@ public class RedcapWrapper implements RedcapService {
         return String.format("%s://%s:%s/%s", protocol, host, port, uri);
     }
 
-    public String getHostname() {
-        return hostname;
-    }
-
-    public void setHostname(String hostname) {
-        this.hostname = hostname;
-    }
-
-    public String getProtocol() {
-        return protocol;
-    }
-
-    public void setProtocol(String protocol) {
-        this.protocol = protocol;
-    }
-
-    public String getUri() {
-        return uri;
-    }
-
-    public void setUri(String uri) {
-        this.uri = uri;
-    }
-
-    public String getPort() {
-        return port;
-    }
-
-    public void setPort(String port) {
-        this.port = port;
-    }
-
     public String getApiToken() {
         return apiToken;
     }
 
     public void setApiToken(String apiToken) {
         this.apiToken = apiToken;
+    }
+
+    private String buildRedcapApiUri (String baseUrl) {
+        if (baseUrl != null || !baseUrl.isEmpty()) {
+            return String.format("%s/%s", removeTrailingSlash(baseUrl), REDCAP_API_URI);
+        } else {
+            return null;
+        }
+    }
+
+    private String removeTrailingSlash(String s) {
+        return s.replaceAll("/$", "");
     }
 }

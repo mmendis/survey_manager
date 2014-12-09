@@ -10,6 +10,6 @@ import java.util.List;
  * Created by sboykin on 11/21/2014.
  */
 public interface RedcapService {
-    RedcapResult pullRecordRequest(String recordType, String recordId, String surveyForm, String eventName);
+    RedcapResult pullRecordRequest(String redcapBaseUrl, String recordType, String recordId, String surveyForm, String eventName);
     RedcapResult pushRecordsRequest(String recordType, List<RedcapSurveyRecord> importRecords, String overwriteBehavior, String returnContent);
 }

@@ -1,4 +1,4 @@
-package org.chip.ihl.surveymanager.rest.controller.exception;
+package org.chip.ihl.surveymanager.rest.exception;
 
 /**
  * 'Unauthorized request' exception

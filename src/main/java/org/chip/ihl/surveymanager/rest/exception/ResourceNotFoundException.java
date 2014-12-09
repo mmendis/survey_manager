@@ -1,4 +1,4 @@
-package org.chip.ihl.surveymanager.rest.controller.exception;
+package org.chip.ihl.surveymanager.rest.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;

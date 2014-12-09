@@ -60,7 +60,7 @@ public class SurveyManagerControllerTest extends AbstractTestNGSpringContextTest
     private static final String EAV_FIELD_VALUE_1 = "sample_fieldvalue_1";
     private static final String EAV_EVENT_NAME_1 = "event_name_1";
     private static final String EAV_SURVEY_FORM_1 = "sample_survey_form_1";
-    private static final String EAV_SURVEY_VERSION_1 = "sample_survey_1";
+    private static final String TEST_REDCAP_URL = "http://testredcap.dummy.org";
 
 
     protected RedcapResult getTestRedcapRecordsForSingleId() {
@@ -123,7 +123,7 @@ public class SurveyManagerControllerTest extends AbstractTestNGSpringContextTest
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
 
         RedcapResult redcapResult = getTestRedcapRecordsForSingleId();
-        when(redcapServiceMock.pullRecordRequest(anyString(), eq(EAV_RECORD_ID_1), anyString(), eq(EAV_EVENT_NAME_1))).thenReturn(redcapResult);
+        when(redcapServiceMock.pullRecordRequest(anyString(), anyString(), eq(EAV_RECORD_ID_1), anyString(), eq(EAV_EVENT_NAME_1))).thenReturn(redcapResult);
 
         mockMvc.perform(post(REDCAP_PULL_URI)
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
@@ -132,6 +132,7 @@ public class SurveyManagerControllerTest extends AbstractTestNGSpringContextTest
                         .param("recordType", EAV_RECORD_TYPE)
                                 // .param("token", "anyToken")
                         .param("redcap_event_name", EAV_EVENT_NAME_1)
+                        .param("redcap_url", TEST_REDCAP_URL)
                         .param("instrument", EAV_SURVEY_FORM_1)
         )
                 .andExpect(status().isOk());
@@ -144,7 +145,7 @@ public class SurveyManagerControllerTest extends AbstractTestNGSpringContextTest
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
 
         RedcapResult redcapResult = getTestRedcapRecordsForNotFound();
-        when(redcapServiceMock.pullRecordRequest(anyString(), eq(EAV_RECORD_ID_1), anyString(), eq(EAV_EVENT_NAME_1))).thenReturn(redcapResult);
+        when(redcapServiceMock.pullRecordRequest(anyString(), anyString(), eq(EAV_RECORD_ID_1), anyString(), eq(EAV_EVENT_NAME_1))).thenReturn(redcapResult);
 
         mockMvc.perform(post(REDCAP_PULL_URI)
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
@@ -153,6 +154,7 @@ public class SurveyManagerControllerTest extends AbstractTestNGSpringContextTest
                         .param("recordType", EAV_RECORD_TYPE)
 //                        .param("token", "anyToken")
                         .param("redcap_event_name", EAV_EVENT_NAME_1)
+                        .param("redcap_url", TEST_REDCAP_URL)
                         .param("instrument", EAV_SURVEY_FORM_1)
         )
                 .andExpect(status().isNotFound());
@@ -164,7 +166,7 @@ public class SurveyManagerControllerTest extends AbstractTestNGSpringContextTest
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
 
         RedcapResult redcapResult = getTestRedcapRecordsForEmptyRecords();
-        when(redcapServiceMock.pullRecordRequest(anyString(), eq(RECORD_NOT_IN_SYSTEM), anyString(), anyString())).thenReturn(redcapResult);
+        when(redcapServiceMock.pullRecordRequest(anyString(), anyString(), eq(RECORD_NOT_IN_SYSTEM), anyString(), anyString())).thenReturn(redcapResult);
 
         mockMvc.perform(post(REDCAP_PULL_URI)
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
@@ -173,6 +175,7 @@ public class SurveyManagerControllerTest extends AbstractTestNGSpringContextTest
                         .param("recordType", EAV_RECORD_TYPE)
 //                        .param("token", "anyToken")
                         .param("redcap_event_name", EAV_EVENT_NAME_1)
+                        .param("redcap_url", TEST_REDCAP_URL)
                         .param("instrument", EAV_SURVEY_FORM_1)
         )
                 .andExpect(status().isOk());
@@ -183,7 +186,7 @@ public class SurveyManagerControllerTest extends AbstractTestNGSpringContextTest
         resetMocks();
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
 
-        when(redcapServiceMock.pullRecordRequest(eq(INVALID_RECORD_TYPE), eq(EAV_RECORD_ID_1), anyString(), eq(EAV_EVENT_NAME_1))).thenThrow(IllegalArgumentException.class);
+        when(redcapServiceMock.pullRecordRequest(anyString(), eq(INVALID_RECORD_TYPE), eq(EAV_RECORD_ID_1), anyString(), eq(EAV_EVENT_NAME_1))).thenThrow(IllegalArgumentException.class);
 
         mockMvc.perform(post(REDCAP_PULL_URI)
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
@@ -191,6 +194,7 @@ public class SurveyManagerControllerTest extends AbstractTestNGSpringContextTest
                         .param("record", EAV_RECORD_ID_1)
                         .param("recordType", INVALID_RECORD_TYPE)
                         //.param("token", "anyToken")
+                        .param("redcap_url", TEST_REDCAP_URL)
                         .param("redcap_event_name", EAV_EVENT_NAME_1)
                         .param("instrument", EAV_SURVEY_FORM_1)
         )

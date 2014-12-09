@@ -1,4 +1,4 @@
-package org.chip.ihl.surveymanager.rest.controller.exception;
+package org.chip.ihl.surveymanager.rest.exception;
 
 /**
  * 'Unacceptable Exception' for controller (meaning bad data passed into service

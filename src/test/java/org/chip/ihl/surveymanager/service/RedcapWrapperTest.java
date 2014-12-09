@@ -34,15 +34,14 @@ public class RedcapWrapperTest extends AbstractTestNGSpringContextTests {
 
     private Properties properties;
     private final String EAV_RECORD_TYPE = "eav";
-    private final String DEFAULT_EVENT_NAME = "event_1_arm_1";
-    private final String DEFAULT_SURVEY_FORM = "pah_inbound_ivr_adult_survey";
-    private final String DEFAULT_RECORD_ID = "1";
+    private final String TEST_EVENT_NAME = "event_1_arm_1";
+    private final String TEST_SURVEY_FORM = "pah_inbound_ivr_adult_survey";
+    private final String TEST_RECORD_ID = "1";
 
-    private String host;
-    private String port;
-    private String protocol;
-    private String apiUri;
-    private String apiToken;
+    private String testBaseUrl;
+    private String testApiToken;
+
+    private RedcapWrapper validWrapper;
 
     @Mock
     private RestTemplate mockRestTemplate;
@@ -62,14 +61,13 @@ public class RedcapWrapperTest extends AbstractTestNGSpringContextTests {
                 throw new IOException("Can't load test properties file");
             }
             properties.load(inputStream);
-            host = properties.getProperty("wrapper.redcap.host");
-            port = properties.getProperty("wrapper.redcap.port");
-            protocol = properties.getProperty("wrapper.redcap.protocol");
-            apiUri = properties.getProperty("wrapper.redcap.api.uri");
-            apiToken = properties.getProperty("wrapper.redcap.api.token");
+            testBaseUrl = properties.getProperty("wrapper.redcap.test.baseUrl");
+            testApiToken = properties.getProperty("wrapper.redcap.test.api.token");
 
-            Reporter.log(String.format("Configuration components:\nHost: %s; Port: %s, Protocol: %s, URI: %s, Token: %s\n",
-                    host, port, protocol, apiUri, apiToken));
+            Reporter.log(String.format("Configuration components:\nREDCap Base URL: %s; Token: %s\n",
+                    testBaseUrl, testApiToken));
+
+            validWrapper = getValidWrapper();
         } catch (IOException ie) {
             throw new RuntimeException("Can't load test properties file", ie);
         }
@@ -77,21 +75,18 @@ public class RedcapWrapperTest extends AbstractTestNGSpringContextTests {
     // pullRecordRequest tests
     @Test
     public void whenValidParametersPullRecordRequestReturnsOk() throws Exception {
-        RedcapWrapper wrapper = getWrapperFromParams();
-        RedcapResult result = wrapper.pullRecordRequest(EAV_RECORD_TYPE, DEFAULT_RECORD_ID, DEFAULT_SURVEY_FORM, DEFAULT_EVENT_NAME);
+        RedcapResult result = validWrapper.pullRecordRequest(testBaseUrl, EAV_RECORD_TYPE, TEST_RECORD_ID, TEST_SURVEY_FORM, TEST_EVENT_NAME);
         Assert.assertEquals(HttpStatus.OK, result.getStatus());
     }
 
     @Test(expectedExceptions = IllegalArgumentException.class)
     public void whenMissingRecordTypePullRecordRequestThrowsException() {
-        RedcapWrapper wrapper = getWrapperFromParams();
-        RedcapResult result = wrapper.pullRecordRequest(null, DEFAULT_RECORD_ID, DEFAULT_SURVEY_FORM, DEFAULT_EVENT_NAME);
+        RedcapResult result = validWrapper.pullRecordRequest(testBaseUrl, null, TEST_RECORD_ID, TEST_SURVEY_FORM, TEST_EVENT_NAME);
     }
 
     @Test(expectedExceptions = IllegalArgumentException.class)
     public void whenInvalidRecordTypePullRecordRequestThrowsException() {
-        RedcapWrapper wrapper = getWrapperFromParams();
-        RedcapResult result = wrapper.pullRecordRequest("myinvalidrecordtype", DEFAULT_RECORD_ID, DEFAULT_SURVEY_FORM, DEFAULT_EVENT_NAME);
+        RedcapResult result = validWrapper.pullRecordRequest(testBaseUrl, "myinvalidrecordtype", TEST_RECORD_ID, TEST_SURVEY_FORM, TEST_EVENT_NAME);
     }
 
     /**
@@ -99,8 +94,7 @@ public class RedcapWrapperTest extends AbstractTestNGSpringContextTests {
      */
     @Test
     public void whenMissingRecordIdPullRecordRequestReturnsOk() {
-        RedcapWrapper wrapper = getWrapperFromParams();
-        RedcapResult result = wrapper.pullRecordRequest(EAV_RECORD_TYPE, null, DEFAULT_SURVEY_FORM, DEFAULT_EVENT_NAME);
+        RedcapResult result = validWrapper.pullRecordRequest(testBaseUrl, EAV_RECORD_TYPE, null, TEST_SURVEY_FORM, TEST_EVENT_NAME);
         Assert.assertEquals(HttpStatus.OK, result.getStatus());
     }
 
@@ -109,8 +103,7 @@ public class RedcapWrapperTest extends AbstractTestNGSpringContextTests {
      * TODO This test is flawed because the test doesn't account for the case when there are no records in the project - fix
      */
     public void whenRecordIdNotFoundPullRecordRequestReturnsEmptyOk() throws Exception {
-        RedcapWrapper wrapper = getWrapperFromParams();
-        RedcapResult result = wrapper.pullRecordRequest(EAV_RECORD_TYPE, "idNotInSystem", DEFAULT_SURVEY_FORM, DEFAULT_EVENT_NAME);
+        RedcapResult result = validWrapper.pullRecordRequest(testBaseUrl, EAV_RECORD_TYPE, "idNotInSystem", TEST_SURVEY_FORM, TEST_EVENT_NAME);
         Assert.assertEquals(HttpStatus.OK, result.getStatus());
         Assert.assertTrue(result.getRecords().isEmpty());
     }
@@ -118,26 +111,25 @@ public class RedcapWrapperTest extends AbstractTestNGSpringContextTests {
     /**
      * when valid record, records returned should only be for that ID
      */
-    @Test
-    public void whenEventFoundPullRecordRequestReturnsThoseRecordIDs() {
-        RedcapWrapper wrapper = getWrapperFromParams();
-        RedcapResult result = wrapper.pullRecordRequest(EAV_RECORD_TYPE, DEFAULT_RECORD_ID, DEFAULT_SURVEY_FORM, DEFAULT_EVENT_NAME);
-        Assert.assertEquals(HttpStatus.OK, result.getStatus());
-        List<RedcapSurveyRecord> records = result.getRecords();
-        if (records != null) {
-            for (RedcapSurveyRecord surveyRecord : records) {
-                Assert.assertEquals(DEFAULT_RECORD_ID, surveyRecord.getRecordId());
-            }
-        }
-    }
-
+//    @Test
+//    public void whenEventFoundPullRecordRequestReturnsThoseRecordIDs() {
+//        RedcapWrapper wrapper = getValidWrapper();
+//        RedcapResult result = wrapper.pullRecordRequest(testBaseUrl, EAV_RECORD_TYPE, TEST_RECORD_ID, TEST_SURVEY_FORM, TEST_EVENT_NAME);
+//        Assert.assertEquals(HttpStatus.OK, result.getStatus());
+//        List<RedcapSurveyRecord> records = result.getRecords();
+//        if (records != null) {
+//            for (RedcapSurveyRecord surveyRecord : records) {
+//                Assert.assertEquals(TEST_RECORD_ID, surveyRecord.getRecordId());
+//            }
+//        }
+//    }
+//
     /**
      * Missing event means all events should be returned
      */
     @Test
     public void whenMissingEventPullRecordRequestReturnsOk() throws Exception {
-        RedcapWrapper wrapper = getWrapperFromParams();
-        RedcapResult result = wrapper.pullRecordRequest(EAV_RECORD_TYPE, DEFAULT_RECORD_ID, DEFAULT_SURVEY_FORM, null);
+        RedcapResult result = validWrapper.pullRecordRequest(testBaseUrl, EAV_RECORD_TYPE, TEST_RECORD_ID, TEST_SURVEY_FORM, null);
         Assert.assertEquals(HttpStatus.OK, result.getStatus());
     }
 
@@ -145,10 +137,9 @@ public class RedcapWrapperTest extends AbstractTestNGSpringContextTests {
      * When event not found, should return no records
      */
     @Test
-    public void whenEventNotFoundPullRecordRequestReturns404OrEmptyOk() {
-        RedcapWrapper wrapper = getWrapperFromParams();
-        RedcapResult result = wrapper.pullRecordRequest(EAV_RECORD_TYPE, DEFAULT_RECORD_ID, DEFAULT_SURVEY_FORM, "anEventThatWontBeFound");
-        Assert.assertEquals(true, (HttpStatus.NOT_FOUND == result.getStatus()) || result.getRecords().isEmpty());
+    public void whenEventNotFoundPullRecordRequestReturnsEmptyOk() {
+        RedcapResult result = validWrapper.pullRecordRequest(testBaseUrl, EAV_RECORD_TYPE, TEST_RECORD_ID, TEST_SURVEY_FORM, "anEventThatWontBeFound");
+        Assert.assertTrue(result.getRecords().isEmpty());
     }
 
     /**
@@ -156,57 +147,43 @@ public class RedcapWrapperTest extends AbstractTestNGSpringContextTests {
      */
     @Test
     public void whenEventFoundPullRecordRequestReturnsThoseEventRecords() {
-        RedcapWrapper wrapper = getWrapperFromParams();
-        RedcapResult result = wrapper.pullRecordRequest(EAV_RECORD_TYPE, DEFAULT_RECORD_ID, DEFAULT_SURVEY_FORM, DEFAULT_EVENT_NAME);
+        RedcapResult result = validWrapper.pullRecordRequest(testBaseUrl, EAV_RECORD_TYPE, TEST_RECORD_ID, TEST_SURVEY_FORM, TEST_EVENT_NAME);
         Assert.assertEquals(HttpStatus.OK, result.getStatus());
         List<RedcapSurveyRecord> records = result.getRecords();
         if (records != null) {
             for (RedcapSurveyRecord surveyRecord : records) {
-                Assert.assertEquals(DEFAULT_EVENT_NAME, surveyRecord.getEventName());
+                Assert.assertEquals(TEST_EVENT_NAME, surveyRecord.getEventName());
             }
         }
     }
 
     @Test(expectedExceptions = IllegalArgumentException.class)
     public void whenMissingTokenPullRecordRequestThrowsException() throws Exception {
-        RedcapWrapper wrapper = getWrapperFromParams();
+        RedcapWrapper wrapper = new RedcapWrapper();
         wrapper.setApiToken(null);
-        RedcapResult result = wrapper.pullRecordRequest(EAV_RECORD_TYPE, DEFAULT_RECORD_ID, DEFAULT_SURVEY_FORM, DEFAULT_EVENT_NAME);
+        RedcapResult result = wrapper.pullRecordRequest(testBaseUrl, EAV_RECORD_TYPE, TEST_RECORD_ID, TEST_SURVEY_FORM, TEST_EVENT_NAME);
     }
 
     @Test
     public void whenInvalidTokenPullRecordRequestReturns403() throws Exception {
-        RedcapWrapper wrapper = getWrapperFromParams();
-        wrapper.setApiToken("anInvalidToken");
-        RedcapResult result = wrapper.pullRecordRequest(EAV_RECORD_TYPE, DEFAULT_RECORD_ID, DEFAULT_SURVEY_FORM, DEFAULT_EVENT_NAME);
+        RedcapWrapper wrapper = new RedcapWrapper("anInvalidToken");
+        RedcapResult result = wrapper.pullRecordRequest(testBaseUrl, EAV_RECORD_TYPE, TEST_RECORD_ID, TEST_SURVEY_FORM, TEST_EVENT_NAME);
         Assert.assertEquals(HttpStatus.FORBIDDEN, result.getStatus());
     }
 
     @Test
-    public void whenInvalidRedcapHostnamePullRecordRequestReturns500() {
-        RedcapWrapper wrapper = getWrapperFromParams();
-        // Test bad hostname
-        wrapper.setHostname("aBadHostXYZ");
-        RedcapResult result = wrapper.pullRecordRequest(EAV_RECORD_TYPE, DEFAULT_RECORD_ID, DEFAULT_SURVEY_FORM, DEFAULT_EVENT_NAME);
-        Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, result.getStatus());
-    }
-
-    @Test
-    public void whenInvalidRedcapPortPullRecordRequestReturns500() {
-        RedcapWrapper wrapper = getWrapperFromParams();
-        // Test bad port
-        wrapper.setPort("3");
-        RedcapResult result = wrapper.pullRecordRequest(EAV_RECORD_TYPE, DEFAULT_RECORD_ID, DEFAULT_SURVEY_FORM, DEFAULT_EVENT_NAME);
-        Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, result.getStatus());
-    }
-
-    @Test
-    public void whenInvalidRedcapApiUriPullRecordRequestReturns404() {
-        RedcapWrapper wrapper = getWrapperFromParams();
+    public void whenInvalidRedcapApiUrlPullRecordRequestReturnsException() {
+        RedcapWrapper wrapper = getValidWrapper();
         // Test bad API uri
-        wrapper.setUri("aBadRedcapURIHere");
-        RedcapResult result = wrapper.pullRecordRequest(EAV_RECORD_TYPE, DEFAULT_RECORD_ID, DEFAULT_SURVEY_FORM, DEFAULT_EVENT_NAME);
+        RedcapResult result = wrapper.pullRecordRequest("aBadRedcapURIHere", EAV_RECORD_TYPE, TEST_RECORD_ID, TEST_SURVEY_FORM, TEST_EVENT_NAME);
         Assert.assertEquals(HttpStatus.NOT_FOUND, result.getStatus());
+    }
+
+    @Test(expectedExceptions = IllegalArgumentException.class)
+    public void whenMissingRedcapApiUrlPullRecordRequestReturns404() {
+        RedcapWrapper wrapper = getValidWrapper();
+        // Test bad API uri
+        RedcapResult result = wrapper.pullRecordRequest(null, EAV_RECORD_TYPE, TEST_RECORD_ID, TEST_SURVEY_FORM, TEST_EVENT_NAME);
     }
 
     // TODO There should also be test coverage to check the survey form, but this doesn't work as expected in REDCap (v. 6.2.0)
@@ -215,8 +192,8 @@ public class RedcapWrapperTest extends AbstractTestNGSpringContextTests {
 
 
     // HELPERS
-    private RedcapWrapper getWrapperFromParams() {
-        return new RedcapWrapper(host, protocol, apiUri, port, apiToken);
+    private RedcapWrapper getValidWrapper() {
+        return new RedcapWrapper(testApiToken);
     }
 
     private HttpEntity<RedcapSurveyRecord> setupTestHttpEntity() {

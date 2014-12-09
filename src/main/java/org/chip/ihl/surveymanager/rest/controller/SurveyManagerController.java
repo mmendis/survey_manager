@@ -3,9 +3,10 @@ package org.chip.ihl.surveymanager.rest.controller;
 import org.apache.log4j.Logger;
 import org.chip.ihl.surveymanager.redcap.RedcapResult;
 import org.chip.ihl.surveymanager.redcap.RedcapSurveyRecord;
-import org.chip.ihl.surveymanager.rest.controller.exception.ResourceNotFoundException;
-import org.chip.ihl.surveymanager.rest.controller.exception.UnacceptableException;
-import org.chip.ihl.surveymanager.rest.controller.exception.UnauthorizedException;
+import org.chip.ihl.surveymanager.rest.exception.QueueException;
+import org.chip.ihl.surveymanager.rest.exception.ResourceNotFoundException;
+import org.chip.ihl.surveymanager.rest.exception.UnacceptableException;
+import org.chip.ihl.surveymanager.rest.exception.UnauthorizedException;
 import org.chip.ihl.surveymanager.service.MessageService;
 import org.chip.ihl.surveymanager.service.RedcapService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,8 +27,6 @@ public class SurveyManagerController {
 
     @Autowired
     protected RedcapService redcapService;
-
-
     @Autowired
     protected MessageService messageService;
 
@@ -47,9 +46,10 @@ public class SurveyManagerController {
             @RequestParam(value = "recordType", defaultValue = EAV_RECORD_TYPE) String recordType,
             //@RequestParam(value = "token", required = true) String projectToken,
             @RequestParam(value = "redcap_event_name", required = false) String eventName,
+            @RequestParam(value = "redcap_url", required = true) String redcapBaseUrl,
             @RequestParam(value = "instrument", required = false) String surveyForm) {
 
-        RedcapResult redcapResult = redcapService.pullRecordRequest(recordType, recordId, surveyForm, eventName);
+        RedcapResult redcapResult = redcapService.pullRecordRequest(redcapBaseUrl, recordType, recordId, surveyForm, eventName);
         switch (redcapResult.getStatus()) {
             case OK:
                 ArrayList<RedcapSurveyRecord> records = redcapResult.getRecords();
@@ -63,6 +63,7 @@ public class SurveyManagerController {
                         logger.info("Successfully pulled REDCap records and pushed to message queue.");
                     } catch (Exception me) {
                         logger.error("Problem sending pulled REDCap records to survey results queue", me);
+                        throw new QueueException("Problem sending records to message queue", me);
                     }
                 }
                 break;
@@ -103,5 +104,11 @@ public class SurveyManagerController {
     @ExceptionHandler(UnacceptableException.class)
     public void unacceptable(Exception ex) {
         logger.error("Request data not acceptable", ex);
+    }
+
+    @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR, reason = "Message queue exception")
+    @ExceptionHandler(QueueException.class)
+    public void unpublished(Exception ex) {
+        logger.error("Requested record not published", ex);
     }
 }
