@@ -16,7 +16,10 @@ public class ConfigValidator implements Validator {
 
     @Override
     public void validate(Object o, Errors errors) {
-        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "redcapApiToken", "Please enter a API Token");
-        WrapperConfiguration wc = (WrapperConfiguration) o;
+        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "redcapApiToken", "valid.token");
+        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "messagingUrl", "valid.broker.url");
+        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "messagingUsername", "valid.broker.username");
+        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "messagingQueue", "valid.broker.queue");
+        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "messagingSendTimeout", "valid.broker.send.timeout");
     }
 }

@@ -48,6 +48,11 @@ public class ManagerPropertiesController {
             PropertiesConfiguration configuration = new PropertiesConfiguration("application.properties");
 //            modelMap.addAttribute("apiToken", configuration.getString(ManagerPropertyHeaders.REDCAP_API_TOKEN.getHeader()));
             wc.setRedcapApiToken(configuration.getString(ManagerPropertyHeaders.REDCAP_API_TOKEN.getHeader()));
+            wc.setMessagingUrl(configuration.getString(ManagerPropertyHeaders.MESSAGE_BROKER_URL.getHeader()));
+            wc.setMessagingUsername(configuration.getString(ManagerPropertyHeaders.MESSAGE_BROKER_USERNAME.getHeader()));
+            wc.setMessagingPassword(configuration.getString(ManagerPropertyHeaders.MESSAGE_BROKER_PASSWORD.getHeader(), wc.getMessagingPassword()));
+            wc.setMessagingQueue(configuration.getString(ManagerPropertyHeaders.MESSAGE_BROKER_RESULT_QUEUE.getHeader(), wc.getMessagingQueue()));
+            wc.setMessagingSendTimeout(configuration.getString(ManagerPropertyHeaders.MESSAGE_BROKER_SEND_TIMEOUT.getHeader(), wc.getMessagingSendTimeout()));
             return "managerProperties";
         } catch (ConfigurationException e) {
             logger.error("Cannot access application properties file.  Check server and web application configuration.");
@@ -57,7 +62,7 @@ public class ManagerPropertiesController {
 
     @RequestMapping(method = RequestMethod.POST)
 //    public String saveWrapperConfig(@ModelAttribute("wrapperConfig") WrapperConfiguration wc, @ModelAttribute("message") String message) {
-    public String saveWrapperConfig(Model model, @Validated WrapperConfiguration wc, BindingResult result) {
+    public String saveWrapperConfig(Model model, @Validated @ModelAttribute("wrapperConfig") WrapperConfiguration wc, BindingResult result) {
         String message = "Successfully changed configuration.  The application server must be restarted for the changes to take effect.";
         try {
             PropertiesConfiguration configuration = new PropertiesConfiguration("application.properties");
@@ -65,12 +70,17 @@ public class ManagerPropertiesController {
             configuration.save("application.properties.BACKUP");
 
             // make sure validation passed
-            model.addAttribute("wrapperConfig", wc);
+            //model.addAttribute("wrapperConfig", wc);
             if (result.hasErrors()) {
                 message = "Errors found in configuration input.  Please check input values below";
             } else {
                 // update values and save new configuration
                 configuration.setProperty(ManagerPropertyHeaders.REDCAP_API_TOKEN.getHeader(), wc.getRedcapApiToken());
+                configuration.setProperty(ManagerPropertyHeaders.MESSAGE_BROKER_URL.getHeader(), wc.getMessagingUrl());
+                configuration.setProperty(ManagerPropertyHeaders.MESSAGE_BROKER_USERNAME.getHeader(), wc.getMessagingUsername());
+                configuration.setProperty(ManagerPropertyHeaders.MESSAGE_BROKER_PASSWORD.getHeader(), wc.getMessagingPassword());
+                configuration.setProperty(ManagerPropertyHeaders.MESSAGE_BROKER_RESULT_QUEUE.getHeader(), wc.getMessagingQueue());
+                configuration.setProperty(ManagerPropertyHeaders.MESSAGE_BROKER_SEND_TIMEOUT.getHeader(), wc.getMessagingSendTimeout());
                 configuration.save();
                 logger.info("Successfully saved wrapper configuration values: " + wc.toString());
             }
