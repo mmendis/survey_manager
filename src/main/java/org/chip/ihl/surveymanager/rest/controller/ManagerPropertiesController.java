@@ -31,6 +31,9 @@ import java.util.Properties;
 @Controller
 @RequestMapping("/admin/config")
 public class ManagerPropertiesController {
+    private static final String MESSAGE_SUCCESS_HEAD_TAG = "<span class=\"passMessage\">";
+    private static final String MESSAGE_FAIL_HEAD_TAG = "<span class=\"failMessage\">";
+    private static final String MESSAGE_FOOTER_TAG = "</span>";
     private final Logger logger = LoggerFactory.getLogger(ManagerPropertiesController.class);
 
     @Autowired
@@ -63,7 +66,7 @@ public class ManagerPropertiesController {
     @RequestMapping(method = RequestMethod.POST)
 //    public String saveWrapperConfig(@ModelAttribute("wrapperConfig") WrapperConfiguration wc, @ModelAttribute("message") String message) {
     public String saveWrapperConfig(Model model, @Validated @ModelAttribute("wrapperConfig") WrapperConfiguration wc, BindingResult result) {
-        String message = "Successfully changed configuration.  The application server must be restarted for the changes to take effect.";
+        String message = String.format("%s Successfully changed configuration.  The application server must be restarted for the changes to take effect. %s", MESSAGE_SUCCESS_HEAD_TAG, MESSAGE_FOOTER_TAG);
         try {
             PropertiesConfiguration configuration = new PropertiesConfiguration("application.properties");
             // first save Old properties to backup file just in case...
@@ -72,7 +75,7 @@ public class ManagerPropertiesController {
             // make sure validation passed
             //model.addAttribute("wrapperConfig", wc);
             if (result.hasErrors()) {
-                message = "Errors found in configuration input.  Please check input values below";
+                message = String.format("%s Errors found in configuration input.  Please check input values below %s", MESSAGE_FAIL_HEAD_TAG, MESSAGE_FOOTER_TAG);
             } else {
                 // update values and save new configuration
                 configuration.setProperty(ManagerPropertyHeaders.REDCAP_API_TOKEN.getHeader(), wc.getRedcapApiToken());

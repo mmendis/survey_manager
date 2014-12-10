@@ -23,6 +23,7 @@ import java.util.ArrayList;
 @RestController
 public class SurveyManagerController {
     private static final String EAV_RECORD_TYPE = "eav";
+    public static final String TRIGGER_BASE_REQUEST_URI = "/trigger";
     private final Logger logger = Logger.getLogger(SurveyManagerController.class);
 
     @Autowired
@@ -39,7 +40,7 @@ public class SurveyManagerController {
      * @param eventName    (optional) The event name to pull from, if longitudnal study
      * @param surveyForm    (optional) The survey form to pull form
      */
-    @RequestMapping(value = "/trigger/pull", method = RequestMethod.POST, consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
+    @RequestMapping(value = TRIGGER_BASE_REQUEST_URI + "/pull", method = RequestMethod.POST, consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
     @ResponseStatus(value = HttpStatus.OK)
     public void pullRedcapRecords(
             @RequestParam(value="record", required = false) String recordId,

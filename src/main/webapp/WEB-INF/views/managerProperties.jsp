@@ -1,4 +1,3 @@
-<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%--
   Created by IntelliJ IDEA.
   User: sboykin
@@ -6,18 +5,44 @@
   Time: 11:07 AM
   To change this template use File | Settings | File Templates.
 --%>
-<%@ page contentType="text/html;charset=UTF-8" language="java" isELIgnored="false" %>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ page contentType="text/html;charset=UTF-8" language="java" isELIgnored="false" session="true" %>
 
 <html>
 <head>
     <title>Survey Manager Application properties</title>
+
+  <style type="text/css">
+    .passMessage {
+        color: blue;
+    }
+    .failMessage {
+        color: red;
+    }
+    .message {
+      font-weight: bold;
+      word-wrap: break-word;
+    }
+  </style>
 </head>
 <body>
+<h2>Survey Manager Application Properties</h2>
+<c:if test="${pageContext.request.userPrincipal.name != null}">
+  <h3>
+    Logged in as: ${pageContext.request.userPrincipal.name}
+    |<a href="<c:url value="/logout" />"> Logout</a>
+    <%--<form action="logout">--%>
+      <%--<!-- include CSRF token for security purposes -->--%>
+      <%--<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">--%>
+      <%--<input type="submit" value="Logout" />--%>
+    <%--</form>--%>
+  </h3>
+</c:if>
 <form:form commandName="wrapperConfig" method="post">
-  <h2>Survey Manager Application Properties</h2>
-  <table>
+  <table style="table-layout: fixed;">
     <tr>
-      <td colspan="3">${message}</td>
+      <td class="message" colspan="3">${message}</td>
     </tr>
     <tr>
       <th class="variable">Property</th>
@@ -60,6 +85,8 @@
       </td>
     </tr>
 </table>
+  <!-- include CSRF token for security purposes -->
+  <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
 </form:form>
 </body>
 </html>

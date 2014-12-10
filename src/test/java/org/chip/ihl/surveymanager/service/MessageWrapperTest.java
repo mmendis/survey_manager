@@ -1,7 +1,7 @@
 package org.chip.ihl.surveymanager.service;
 
 import junit.framework.Assert;
-import org.chip.ihl.surveymanager.config.MessagingConfig;
+import org.chip.ihl.surveymanager.config.AppConfig;
 import org.chip.ihl.surveymanager.redcap.RedcapData;
 import org.chip.ihl.surveymanager.redcap.RedcapSurveyRecord;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +18,7 @@ import java.util.Arrays;
  * or a problem with external MQ
  */
 @Test
-@ContextConfiguration(classes = MessagingConfig.class)
+@ContextConfiguration(classes = AppConfig.class)
 public class MessageWrapperTest extends AbstractTestNGSpringContextTests {
     @Autowired
     private MessageService messageService;
