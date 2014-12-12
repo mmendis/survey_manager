@@ -5,6 +5,7 @@ package org.chip.ihl.surveymanager.config;
  */
 public enum ManagerPropertyHeaders {
     REDCAP_API_TOKEN ("wrapper.redcap.api.token"),
+    REDCAP_PRIVATE_FORMS ("wrapper.redcap.private.forms"),
     MESSAGE_BROKER_URL ("wrapper.messaging.broker.url"),
     MESSAGE_BROKER_USERNAME ("wrapper.messaging.broker.username"),
     MESSAGE_BROKER_PASSWORD ("wrapper.messaging.broker.password"),

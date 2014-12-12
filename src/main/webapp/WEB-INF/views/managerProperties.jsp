@@ -68,9 +68,14 @@
       <th></th>
     </tr>
     <tr>
-      <td class="variable">Redcap API Token</td>
+      <td class="variable">REDCap API Token</td>
       <td><form:input path="redcapApiToken" size="40"/></td>
       <td><form:errors path="redcapApiToken" cssStyle="color: red;" /> </td>
+    </tr>
+    <tr>
+      <td class="variable">REDCap Private Forms (Separate each form with comma)</td>
+      <td><form:input path="redcapPrivateForms" size="40"/></td>
+      <td><form:errors path="redcapPrivateForms" cssStyle="color: red;" /> </td>
     </tr>
     <tr>
       <td class="variable">Message Broker URL</td>

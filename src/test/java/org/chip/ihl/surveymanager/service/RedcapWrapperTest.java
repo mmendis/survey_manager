@@ -1,11 +1,14 @@
 package org.chip.ihl.surveymanager.service;
 
+import org.chip.ihl.surveymanager.config.WrapperConfiguration;
+import org.chip.ihl.surveymanager.config.test.TestConfig;
 import org.chip.ihl.surveymanager.redcap.RedcapResult;
 import org.chip.ihl.surveymanager.redcap.RedcapSurveyRecord;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.*;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
@@ -28,7 +31,7 @@ import static org.chip.ihl.surveymanager.redcap.RedcapData.sampleRedcapRecords;
  * Assumes configuration a) points to a valid REDCap server, b) has a valid, active API token and c) points to a project that has records in it (this part needs improvement)
  */
 @Test
-@ContextConfiguration(locations = "file:src/main/webapp/WEB-INF/spring/application-config.xml")
+@ContextConfiguration(classes = TestConfig.class)
 public class RedcapWrapperTest extends AbstractTestNGSpringContextTests {
     private final Logger logger = LoggerFactory.getLogger(RedcapWrapperTest.class);
 
@@ -41,10 +44,12 @@ public class RedcapWrapperTest extends AbstractTestNGSpringContextTests {
     private String testBaseUrl;
     private String testApiToken;
 
+
     private RedcapWrapper validWrapper;
 
     @Mock
     private RestTemplate mockRestTemplate;
+    @Qualifier("propertyConfigurer")
 
     @BeforeTest
     public void setup() throws Exception {
@@ -56,7 +61,7 @@ public class RedcapWrapperTest extends AbstractTestNGSpringContextTests {
         properties = new Properties();
         InputStream inputStream;
         try {
-            inputStream = RedcapWrapperTest.class.getClassLoader().getResourceAsStream("application.properties");
+            inputStream = RedcapWrapperTest.class.getClassLoader().getResourceAsStream("test.properties");
             if (inputStream == null) {
                 throw new IOException("Can't load test properties file");
             }
@@ -67,7 +72,7 @@ public class RedcapWrapperTest extends AbstractTestNGSpringContextTests {
             Reporter.log(String.format("Configuration components:\nREDCap Base URL: %s; Token: %s\n",
                     testBaseUrl, testApiToken));
 
-            validWrapper = getValidWrapper();
+            validWrapper = getWrapperFromParams(testApiToken, null);
         } catch (IOException ie) {
             throw new RuntimeException("Can't load test properties file", ie);
         }
@@ -159,29 +164,37 @@ public class RedcapWrapperTest extends AbstractTestNGSpringContextTests {
 
     @Test(expectedExceptions = IllegalArgumentException.class)
     public void whenMissingTokenPullRecordRequestThrowsException() throws Exception {
-        RedcapWrapper wrapper = new RedcapWrapper();
-        wrapper.setApiToken(null);
+        RedcapWrapper wrapper = getWrapperFromParams(null, null);
         RedcapResult result = wrapper.pullRecordRequest(testBaseUrl, EAV_RECORD_TYPE, TEST_RECORD_ID, TEST_SURVEY_FORM, TEST_EVENT_NAME);
     }
 
     @Test
     public void whenInvalidTokenPullRecordRequestReturns403() throws Exception {
-        RedcapWrapper wrapper = new RedcapWrapper("anInvalidToken");
+        RedcapWrapper wrapper = getWrapperFromParams("anInvalidToken", null);
         RedcapResult result = wrapper.pullRecordRequest(testBaseUrl, EAV_RECORD_TYPE, TEST_RECORD_ID, TEST_SURVEY_FORM, TEST_EVENT_NAME);
         Assert.assertEquals(HttpStatus.FORBIDDEN, result.getStatus());
     }
 
     @Test
     public void whenInvalidRedcapApiUrlPullRecordRequestReturnsException() {
-        RedcapWrapper wrapper = getValidWrapper();
+        RedcapWrapper wrapper = getWrapperFromParams(testApiToken, null);
         // Test bad API uri
         RedcapResult result = wrapper.pullRecordRequest("aBadRedcapURIHere", EAV_RECORD_TYPE, TEST_RECORD_ID, TEST_SURVEY_FORM, TEST_EVENT_NAME);
         Assert.assertEquals(HttpStatus.NOT_FOUND, result.getStatus());
     }
 
     @Test(expectedExceptions = IllegalArgumentException.class)
+    public void whenPrivateFormRequestedPullRecordRequestReturnsException() {
+        String surveyForm = "aPrivateForm";
+        List<String> privateForms = new ArrayList<>(1);
+        privateForms.add(surveyForm);
+        RedcapWrapper wrapper = getWrapperFromParams(testApiToken, privateForms);
+        RedcapResult result = wrapper.pullRecordRequest(testBaseUrl, EAV_RECORD_TYPE, TEST_RECORD_ID, surveyForm, TEST_EVENT_NAME);
+    }
+
+    @Test(expectedExceptions = IllegalArgumentException.class)
     public void whenMissingRedcapApiUrlPullRecordRequestReturns404() {
-        RedcapWrapper wrapper = getValidWrapper();
+        RedcapWrapper wrapper = getWrapperFromParams(testApiToken, null);
         // Test bad API uri
         RedcapResult result = wrapper.pullRecordRequest(null, EAV_RECORD_TYPE, TEST_RECORD_ID, TEST_SURVEY_FORM, TEST_EVENT_NAME);
     }
@@ -192,8 +205,12 @@ public class RedcapWrapperTest extends AbstractTestNGSpringContextTests {
 
 
     // HELPERS
-    private RedcapWrapper getValidWrapper() {
-        return new RedcapWrapper(testApiToken);
+    private RedcapWrapper getWrapperFromParams(String apiToken, List<String> privateForms) {
+        WrapperConfiguration wc = new WrapperConfiguration();
+        wc.setRedcapApiToken(apiToken);
+        if (privateForms != null)
+        wc.getRedcapPrivateForms().addAll(privateForms);
+        return new RedcapWrapper(wc);
     }
 
     private HttpEntity<RedcapSurveyRecord> setupTestHttpEntity() {

@@ -3,8 +3,12 @@ package org.chip.ihl.surveymanager.config.test;
 import org.chip.ihl.surveymanager.service.MessageService;
 import org.chip.ihl.surveymanager.service.RedcapService;
 import org.mockito.Mockito;
+import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.ClassPathResource;
+
+import java.io.IOException;
 
 /**
  * Spring bean configuration for test cases
@@ -12,6 +16,14 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 public class TestConfig {
+
+    @Bean
+    public PropertyPlaceholderConfigurer propertyConfigurer() throws IOException {
+        PropertyPlaceholderConfigurer props = new PropertyPlaceholderConfigurer();
+        props.setLocations(new ClassPathResource("test.properties"));
+        return props;
+    }
+
     @Bean
     public RedcapService redcapServiceMock() {
         return Mockito.mock(RedcapService.class);

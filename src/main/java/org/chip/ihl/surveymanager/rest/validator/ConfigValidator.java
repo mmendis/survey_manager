@@ -21,5 +21,10 @@ public class ConfigValidator implements Validator {
         ValidationUtils.rejectIfEmptyOrWhitespace(errors, "messagingUsername", "valid.broker.username");
         ValidationUtils.rejectIfEmptyOrWhitespace(errors, "messagingQueue", "valid.broker.queue");
         ValidationUtils.rejectIfEmptyOrWhitespace(errors, "messagingSendTimeout", "valid.broker.send.timeout");
+
+        // other validations
+        WrapperConfiguration wc = (WrapperConfiguration) o;
+
+        // TODO validate private forms
     }
 }

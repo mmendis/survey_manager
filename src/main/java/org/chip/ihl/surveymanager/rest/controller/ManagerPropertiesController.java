@@ -1,6 +1,5 @@
 package org.chip.ihl.surveymanager.rest.controller;
 
-import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.chip.ihl.surveymanager.config.ManagerPropertyHeaders;
@@ -12,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.WebDataBinder;
@@ -20,9 +18,6 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.servlet.ModelAndView;
-
-import java.util.Properties;
 
 /**
  * Controller for loading and saving wrapper properties
@@ -40,6 +35,9 @@ public class ManagerPropertiesController {
     @Qualifier("configValidator")
     ConfigValidator configValidator;
 
+    @Autowired
+    PropertiesConfiguration appProperties;
+
     @InitBinder
     private void initBinder(WebDataBinder binder) {
         binder.setValidator(configValidator);
@@ -47,30 +45,25 @@ public class ManagerPropertiesController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String getWrapperConfig(@ModelAttribute("wrapperConfig") WrapperConfiguration wc) {
-        try {
-            PropertiesConfiguration configuration = new PropertiesConfiguration("application.properties");
-//            modelMap.addAttribute("apiToken", configuration.getString(ManagerPropertyHeaders.REDCAP_API_TOKEN.getHeader()));
-            wc.setRedcapApiToken(configuration.getString(ManagerPropertyHeaders.REDCAP_API_TOKEN.getHeader()));
-            wc.setMessagingUrl(configuration.getString(ManagerPropertyHeaders.MESSAGE_BROKER_URL.getHeader()));
-            wc.setMessagingUsername(configuration.getString(ManagerPropertyHeaders.MESSAGE_BROKER_USERNAME.getHeader()));
-            wc.setMessagingPassword(configuration.getString(ManagerPropertyHeaders.MESSAGE_BROKER_PASSWORD.getHeader(), wc.getMessagingPassword()));
-            wc.setMessagingQueue(configuration.getString(ManagerPropertyHeaders.MESSAGE_BROKER_RESULT_QUEUE.getHeader(), wc.getMessagingQueue()));
-            wc.setMessagingSendTimeout(configuration.getString(ManagerPropertyHeaders.MESSAGE_BROKER_SEND_TIMEOUT.getHeader(), wc.getMessagingSendTimeout()));
+            wc.setRedcapApiToken(appProperties.getString(ManagerPropertyHeaders.REDCAP_API_TOKEN.getHeader()));
+            wc.setRedcapPrivateForms(appProperties.getList(ManagerPropertyHeaders.REDCAP_PRIVATE_FORMS.getHeader()));
+            wc.setRedcapApiToken(appProperties.getString(ManagerPropertyHeaders.REDCAP_API_TOKEN.getHeader()));
+            wc.setMessagingUrl(appProperties.getString(ManagerPropertyHeaders.MESSAGE_BROKER_URL.getHeader()));
+            wc.setMessagingUsername(appProperties.getString(ManagerPropertyHeaders.MESSAGE_BROKER_USERNAME.getHeader()));
+            wc.setMessagingPassword(appProperties.getString(ManagerPropertyHeaders.MESSAGE_BROKER_PASSWORD.getHeader(), wc.getMessagingPassword()));
+            wc.setMessagingQueue(appProperties.getString(ManagerPropertyHeaders.MESSAGE_BROKER_RESULT_QUEUE.getHeader(), wc.getMessagingQueue()));
+            wc.setMessagingSendTimeout(appProperties.getString(ManagerPropertyHeaders.MESSAGE_BROKER_SEND_TIMEOUT.getHeader(), wc.getMessagingSendTimeout()));
             return "managerProperties";
-        } catch (ConfigurationException e) {
-            logger.error("Cannot access application properties file.  Check server and web application configuration.");
-            throw new RuntimeException(e);
-        }
     }
 
     @RequestMapping(method = RequestMethod.POST)
 //    public String saveWrapperConfig(@ModelAttribute("wrapperConfig") WrapperConfiguration wc, @ModelAttribute("message") String message) {
     public String saveWrapperConfig(Model model, @Validated @ModelAttribute("wrapperConfig") WrapperConfiguration wc, BindingResult result) {
-        String message = String.format("%s Successfully changed configuration.  The application server must be restarted for the changes to take effect. %s", MESSAGE_SUCCESS_HEAD_TAG, MESSAGE_FOOTER_TAG);
+        String message = String.format("%s Successfully changed configuration.  The application must be reloaded (or the application server restarted) for the changes to take effect. %s", MESSAGE_SUCCESS_HEAD_TAG, MESSAGE_FOOTER_TAG);
         try {
-            PropertiesConfiguration configuration = new PropertiesConfiguration("application.properties");
+            //PropertiesConfiguration configuration = new PropertiesConfiguration("application.properties");
             // first save Old properties to backup file just in case...
-            configuration.save("application.properties.BACKUP");
+            appProperties.save("application.properties.BACKUP");
 
             // make sure validation passed
             //model.addAttribute("wrapperConfig", wc);
@@ -78,13 +71,14 @@ public class ManagerPropertiesController {
                 message = String.format("%s Errors found in configuration input.  Please check input values below %s", MESSAGE_FAIL_HEAD_TAG, MESSAGE_FOOTER_TAG);
             } else {
                 // update values and save new configuration
-                configuration.setProperty(ManagerPropertyHeaders.REDCAP_API_TOKEN.getHeader(), wc.getRedcapApiToken());
-                configuration.setProperty(ManagerPropertyHeaders.MESSAGE_BROKER_URL.getHeader(), wc.getMessagingUrl());
-                configuration.setProperty(ManagerPropertyHeaders.MESSAGE_BROKER_USERNAME.getHeader(), wc.getMessagingUsername());
-                configuration.setProperty(ManagerPropertyHeaders.MESSAGE_BROKER_PASSWORD.getHeader(), wc.getMessagingPassword());
-                configuration.setProperty(ManagerPropertyHeaders.MESSAGE_BROKER_RESULT_QUEUE.getHeader(), wc.getMessagingQueue());
-                configuration.setProperty(ManagerPropertyHeaders.MESSAGE_BROKER_SEND_TIMEOUT.getHeader(), wc.getMessagingSendTimeout());
-                configuration.save();
+                appProperties.setProperty(ManagerPropertyHeaders.REDCAP_API_TOKEN.getHeader(), wc.getRedcapApiToken());
+                appProperties.setProperty(ManagerPropertyHeaders.REDCAP_PRIVATE_FORMS.getHeader(), wc.getRedcapPrivateForms());
+                appProperties.setProperty(ManagerPropertyHeaders.MESSAGE_BROKER_URL.getHeader(), wc.getMessagingUrl());
+                appProperties.setProperty(ManagerPropertyHeaders.MESSAGE_BROKER_USERNAME.getHeader(), wc.getMessagingUsername());
+                appProperties.setProperty(ManagerPropertyHeaders.MESSAGE_BROKER_PASSWORD.getHeader(), wc.getMessagingPassword());
+                appProperties.setProperty(ManagerPropertyHeaders.MESSAGE_BROKER_RESULT_QUEUE.getHeader(), wc.getMessagingQueue());
+                appProperties.setProperty(ManagerPropertyHeaders.MESSAGE_BROKER_SEND_TIMEOUT.getHeader(), wc.getMessagingSendTimeout());
+                appProperties.save();
                 logger.info("Successfully saved wrapper configuration values: " + wc.toString());
             }
             model.addAttribute("message", message);

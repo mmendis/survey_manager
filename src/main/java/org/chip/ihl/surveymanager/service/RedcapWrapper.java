@@ -2,6 +2,7 @@ package org.chip.ihl.surveymanager.service;
 
 //import org.apache.log4j.Logger;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.chip.ihl.surveymanager.config.WrapperConfiguration;
 import org.chip.ihl.surveymanager.redcap.RedcapError;
 import org.chip.ihl.surveymanager.redcap.RedcapResult;
 import org.chip.ihl.surveymanager.redcap.RedcapSurveyRecord;
@@ -27,7 +28,7 @@ public class RedcapWrapper implements RedcapService {
     private final Logger logger = LoggerFactory.getLogger(RedcapWrapper.class);
     public static final String REDCAP_API_URI = "api/";
 
-    private String apiToken;
+    private WrapperConfiguration wrapperConfiguration;
 
     // hard-coding some parameters
     private final String REDCAP_DEFAULT_RECORD_FORMAT = "json";
@@ -43,9 +44,9 @@ public class RedcapWrapper implements RedcapService {
         objectMapper = new ObjectMapper();
     }
 
-    public RedcapWrapper(String apiToken) {
+    public RedcapWrapper(WrapperConfiguration wrapperConfiguration) {
         this();
-        this.apiToken = apiToken;
+        this.wrapperConfiguration = wrapperConfiguration;
     }
 
     /**
@@ -69,8 +70,11 @@ public class RedcapWrapper implements RedcapService {
         if (!recordType.equalsIgnoreCase(REDCAP_PARAM_VALUE_RECORD_EAV_VALUE) && !recordType.equalsIgnoreCase(REDCAP_PARAM_VALUE_RECORD_FLAT_VALUE)) {
             throw new IllegalArgumentException(String.format("Record type must be one of the following: {%s, %s}", REDCAP_PARAM_VALUE_RECORD_EAV_VALUE, REDCAP_PARAM_VALUE_RECORD_FLAT_VALUE));
         }
-        if (apiToken == null || apiToken.isEmpty()) {
+        if (wrapperConfiguration.getRedcapApiToken() == null || wrapperConfiguration.getRedcapApiToken().isEmpty()) {
             throw new IllegalArgumentException(String.format("REDCap API token must not be empty"));
+        }
+        if (wrapperConfiguration.getRedcapPrivateForms().contains(surveyForm)) {
+            throw new IllegalArgumentException(String.format("Survey form (%s) marked as private and cannot be exported", surveyForm));
         }
 
         RestTemplate restTemplate = new RestTemplate();
@@ -83,7 +87,7 @@ public class RedcapWrapper implements RedcapService {
 
         // prepare callout request
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        params.add("token", apiToken);
+        params.add("token", wrapperConfiguration.getRedcapApiToken());
         params.add("content", REDCAP_PARAM_VALUE_RECORD_LABEL);
         params.add("format", REDCAP_DEFAULT_RECORD_FORMAT);
         params.add("type", recordType);
@@ -153,14 +157,6 @@ public class RedcapWrapper implements RedcapService {
     // HELPERS
     private String buildBaseUrl(String protocol, String host, String port, String uri) {
         return String.format("%s://%s:%s/%s", protocol, host, port, uri);
-    }
-
-    public String getApiToken() {
-        return apiToken;
-    }
-
-    public void setApiToken(String apiToken) {
-        this.apiToken = apiToken;
     }
 
     private String buildRedcapApiUri (String baseUrl) {

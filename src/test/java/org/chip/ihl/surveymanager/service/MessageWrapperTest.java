@@ -1,28 +1,72 @@
 package org.chip.ihl.surveymanager.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import junit.framework.Assert;
-import org.chip.ihl.surveymanager.config.AppConfig;
+import org.apache.activemq.ActiveMQConnectionFactory;
+import org.apache.activemq.command.ActiveMQQueue;
+import org.chip.ihl.surveymanager.config.WrapperConfiguration;
+import org.chip.ihl.surveymanager.config.test.TestConfig;
+import org.chip.ihl.surveymanager.jms.MessageConsumerBean;
+import org.chip.ihl.surveymanager.jms.MessageProducerBean;
 import org.chip.ihl.surveymanager.redcap.RedcapData;
 import org.chip.ihl.surveymanager.redcap.RedcapSurveyRecord;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jms.core.JmsTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
+import org.testng.Reporter;
+import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Properties;
 
 /**
  * Tests interaction with messaging queue
  * Assumes configuration points to a valid MQ host location.  Failing tests can be caused to improper configuration
  * or a problem with external MQ
+ * TODO flawed test dependent on what's on cue - should fix
  */
 @Test
-@ContextConfiguration(classes = AppConfig.class)
+@ContextConfiguration(classes = TestConfig.class)
 public class MessageWrapperTest extends AbstractTestNGSpringContextTests {
-    @Autowired
+    private Properties properties;
     private MessageService messageService;
+    private WrapperConfiguration wrapperConfiguration;
 
+    @BeforeTest
+    public void setup() throws Exception {
+        // pull Queue properties
+        properties = new Properties();
+        InputStream inputStream;
+        try {
+            inputStream = RedcapWrapperTest.class.getClassLoader().getResourceAsStream("test.properties");
+            if (inputStream == null) {
+                throw new IOException("Can't load test properties file");
+            }
+            properties.load(inputStream);
+            wrapperConfiguration = new WrapperConfiguration();
+
+            wrapperConfiguration.setMessagingUrl(properties.getProperty("wrapper.messaging.broker.url"));
+            wrapperConfiguration.setMessagingSendTimeout(properties.getProperty("wrapper.messaging.broker.send.timeout"));
+            wrapperConfiguration.setMessagingQueue(properties.getProperty("wrapper.messaging.broker.mailbox-destination"));
+            wrapperConfiguration.setMessagingUsername(properties.getProperty("wrapper.messaging.broker.username"));
+            wrapperConfiguration.setMessagingPassword(properties.getProperty("wrapper.messaging.broker.password"));
+
+            Reporter.log(String.format("Configuration components:\nBroker URL: %s; Broker Queue: %s; Broker User: %s; Broker Password: %s; Broker Send Timeout: %s\n",
+                    wrapperConfiguration.getMessagingUrl(),
+                    wrapperConfiguration.getMessagingQueue(),
+                    wrapperConfiguration.getMessagingUsername(),
+                    wrapperConfiguration.getMessagingPassword(),
+                    wrapperConfiguration.getMessagingSendTimeout()));
+
+
+        } catch (IOException ie) {
+            throw new RuntimeException("Can't load test properties file", ie);
+        }
+    }
 
     /**
      * Message that tests the sending and receiving of messages
@@ -30,6 +74,8 @@ public class MessageWrapperTest extends AbstractTestNGSpringContextTests {
      */
     @Test
     public void testMessageExchange() {
+        messageService = messageService();
+
         ArrayList<RedcapSurveyRecord> recordsToTest = new ArrayList<>();
         recordsToTest.addAll(Arrays.asList(RedcapData.sampleRedcapRecords()));
         messageService.send(recordsToTest);
@@ -42,4 +88,37 @@ public class MessageWrapperTest extends AbstractTestNGSpringContextTests {
             Assert.assertTrue(consumedRecords.get(i).isSame(recordsToTest.get(i)));
         }
     }
+
+    // HELPERS
+    public ActiveMQConnectionFactory connectionFactory() {
+        ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory();
+        factory.setBrokerURL(wrapperConfiguration.getMessagingUrl());
+        factory.setUserName(wrapperConfiguration.getMessagingUsername());
+        factory.setPassword(wrapperConfiguration.getMessagingPassword());
+        factory.setSendTimeout(Integer.parseInt(wrapperConfiguration.getMessagingSendTimeout()));
+        return factory;
+    }
+
+    public ActiveMQQueue surveyQueue() {
+        return new ActiveMQQueue(wrapperConfiguration.getMessagingQueue());
+    }
+
+    public ObjectMapper objectMapper() {
+        return new ObjectMapper();
+    }
+
+    public JmsTemplate jmsTemplate() {
+        return new JmsTemplate(connectionFactory());
+    }
+    public MessageProducerBean producerBean() {
+        return new MessageProducerBean(jmsTemplate(), surveyQueue());
+    }
+    public MessageConsumerBean consumerBean() {
+        return new MessageConsumerBean(jmsTemplate(), surveyQueue());
+    }
+
+    public MessageService messageService() {
+        return new MessageWrapper(producerBean(), consumerBean());
+    }
+
 }
