@@ -3,6 +3,7 @@ package org.chip.ihl.surveymanager.service;
 //import org.apache.log4j.Logger;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.chip.ihl.surveymanager.config.WrapperConfiguration;
+import org.chip.ihl.surveymanager.redcap.EAVSurveyRecord;
 import org.chip.ihl.surveymanager.redcap.RedcapError;
 import org.chip.ihl.surveymanager.redcap.RedcapResult;
 import org.chip.ihl.surveymanager.redcap.RedcapSurveyRecord;
@@ -126,9 +127,11 @@ public class RedcapWrapper implements RedcapService {
             logger.info("Response body: " + responseStr);
             redcapResult.setStatus(responseEntity.getStatusCode());
             if (responseEntity.getStatusCode() == HttpStatus.OK) {
-                RedcapSurveyRecord[] records = objectMapper.readValue(responseStr, RedcapSurveyRecord[].class);
+                EAVSurveyRecord[] records = objectMapper.readValue(responseStr, EAVSurveyRecord[].class);
                 if (records != null) {
                     redcapResult.getRecords().addAll(Arrays.asList(records));
+                    // fill EAV records with form info
+                    //redcapResult.setSurveyFormForRecords(surveyForm);
                 }
             } else {
                 //RedcapError redcapError = objectMapper.readValue(responseStr, RedcapError.class);

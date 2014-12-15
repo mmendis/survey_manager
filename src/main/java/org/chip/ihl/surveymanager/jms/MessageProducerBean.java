@@ -12,6 +12,7 @@ import javax.jms.*;
 /**
  * Bean to send messages to queue
  * Created by sboykin on 11/25/2014.
+ * TODO setup message sends to be asynchronous (to allow for longer timeouts)
  */
 public class MessageProducerBean {
     private final Logger logger = LoggerFactory.getLogger(MessageProducerBean.class);
@@ -42,6 +43,7 @@ public class MessageProducerBean {
                         textAsJson = objectMapper.writeValueAsString(surveyMessage.getRecords());
                         textMessage.setText(textAsJson);
                     }
+                    logger.info("Sending the following text: " + textAsJson);
                     //return message;
                     return textMessage;
                 } catch (JsonProcessingException e) {

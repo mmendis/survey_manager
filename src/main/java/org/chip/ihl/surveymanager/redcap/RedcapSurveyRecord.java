@@ -8,19 +8,39 @@ import java.io.Serializable;
 /**
  * REDCap survey record returned from remote server
  * Created by sboykin on 11/22/2014.
+ * TODO awful hack in here to duplicate the subject ID field as the unique record ID for serialization - look into
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
+//@JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include=JsonTypeInfo.As.PROPERTY, property = "@class")
+//@JsonSubTypes({@JsonSubTypes.Type(value = EAVSurveyRecord.class, name = "EAVSurveyRecord")})
 public class RedcapSurveyRecord implements Comparable<RedcapSurveyRecord>, Serializable {
     protected String recordId;
     protected String eventName;
+    protected String subjectId;  // unfortunately duplicate of recordId because of object mapping quirk
+//    protected String surveyForm;
 
     public RedcapSurveyRecord() {
     }
 
     public RedcapSurveyRecord(String recordId, String eventName) {
         this.recordId = recordId;
+        this.subjectId = recordId;
         this.eventName = eventName;
     }
+
+    @JsonProperty("subject_id")
+    public String getSubjectId() {
+        return subjectId;
+    }
+
+    public void setSubjectId(String subjectId) {
+        this.subjectId = subjectId;
+    }
+
+    //    @JsonProperty("survey_id")
+//    public String getSurveyForm() {
+//        return surveyForm;
+//    }
 
     @JsonProperty("record")
     public String getRecordId() {
@@ -29,13 +49,14 @@ public class RedcapSurveyRecord implements Comparable<RedcapSurveyRecord>, Seria
 
     public void setRecordId(String recordId) {
         this.recordId = recordId;
+        this.subjectId = recordId;
     }
 
     public void setEventName(String eventName) {
         this.eventName = eventName;
     }
 
-    @JsonProperty("redcap_event_name")
+    @JsonProperty("event_id")
     public String getEventName() {
         return eventName;
     }

@@ -11,6 +11,10 @@ public class EAVSurveyRecord extends RedcapSurveyRecord {
     protected String fieldName;
     protected String value;
 
+    public EAVSurveyRecord() {
+        super();
+    }
+
     public EAVSurveyRecord(String recordId, String fieldName, String eventName, String value) {
         super(recordId, eventName);
         this.fieldName = fieldName;

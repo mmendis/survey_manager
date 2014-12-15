@@ -1,9 +1,8 @@
 package org.chip.ihl.surveymanager.jms;
 
-import org.chip.ihl.surveymanager.redcap.RedcapSurveyRecord;
+import org.chip.ihl.surveymanager.redcap.EAVSurveyRecord;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Container for the payload that will be sent to message queue
@@ -11,25 +10,25 @@ import java.util.List;
  */
 public class SurveyMessage {
     private String mailId;
-    private ArrayList<RedcapSurveyRecord> records;
+    private ArrayList<EAVSurveyRecord> records;
 
     public SurveyMessage() {
         this.records = new ArrayList<>();
     }
 
-    public SurveyMessage(ArrayList<RedcapSurveyRecord> records) {
+    public SurveyMessage(ArrayList<EAVSurveyRecord> records) {
         this.records = records;
     }
 
-    public ArrayList<RedcapSurveyRecord> getRecords() {
+    public ArrayList<EAVSurveyRecord> getRecords() {
         return records;
     }
 
-    public void setRecords(ArrayList<RedcapSurveyRecord> records) {
+    public void setRecords(ArrayList<EAVSurveyRecord> records) {
         this.records = records;
     }
 
-    public SurveyMessage(String mailId, ArrayList<RedcapSurveyRecord> object) {
+    public SurveyMessage(String mailId, ArrayList<EAVSurveyRecord> object) {
         this.mailId = mailId;
         this.records = object;
     }

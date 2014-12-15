@@ -4,7 +4,6 @@ import org.chip.ihl.surveymanager.config.test.TestConfig;
 import org.chip.ihl.surveymanager.config.test.TestRestServiceWebConfig;
 import org.chip.ihl.surveymanager.redcap.EAVSurveyRecord;
 import org.chip.ihl.surveymanager.redcap.RedcapResult;
-import org.chip.ihl.surveymanager.redcap.RedcapSurveyRecord;
 import org.chip.ihl.surveymanager.service.MessageService;
 import org.chip.ihl.surveymanager.service.RedcapService;
 import org.mockito.Mockito;
@@ -64,7 +63,8 @@ public class SurveyManagerControllerTest extends AbstractTestNGSpringContextTest
 
 
     protected RedcapResult getTestRedcapRecordsForSingleId() {
-        List<RedcapSurveyRecord> records = new ArrayList<>(1);
+//        List<? extends EAVSurveyRecord> records = new ArrayList<>(1);
+        List<EAVSurveyRecord> records = new ArrayList<>(1);
         records.add(new EAVSurveyRecord(EAV_RECORD_ID_1, EAV_FIELD_NAME, EAV_EVENT_NAME_1, EAV_FIELD_VALUE_1));
         return new RedcapResult(HttpStatus.OK, records, null);
     }

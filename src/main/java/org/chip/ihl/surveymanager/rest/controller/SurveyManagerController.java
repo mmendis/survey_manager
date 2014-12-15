@@ -1,8 +1,8 @@
 package org.chip.ihl.surveymanager.rest.controller;
 
 import org.apache.log4j.Logger;
+import org.chip.ihl.surveymanager.redcap.EAVSurveyRecord;
 import org.chip.ihl.surveymanager.redcap.RedcapResult;
-import org.chip.ihl.surveymanager.redcap.RedcapSurveyRecord;
 import org.chip.ihl.surveymanager.rest.exception.QueueException;
 import org.chip.ihl.surveymanager.rest.exception.ResourceNotFoundException;
 import org.chip.ihl.surveymanager.rest.exception.UnacceptableException;
@@ -53,7 +53,7 @@ public class SurveyManagerController {
         RedcapResult redcapResult = redcapService.pullRecordRequest(redcapBaseUrl, recordType, recordId, surveyForm, eventName);
         switch (redcapResult.getStatus()) {
             case OK:
-                ArrayList<RedcapSurveyRecord> records = redcapResult.getRecords();
+                ArrayList<EAVSurveyRecord> records = redcapResult.getRecords();
                 if (records == null || records.isEmpty()) {
                     logger.warn("REDCap returned no records to push for ID: " + recordId);
                    //throw new ResourceNotFoundException("REDCap returned no records to push.");

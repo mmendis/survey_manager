@@ -1,6 +1,6 @@
 package org.chip.ihl.surveymanager.service;
 
-import org.chip.ihl.surveymanager.redcap.RedcapSurveyRecord;
+import org.chip.ihl.surveymanager.redcap.EAVSurveyRecord;
 
 import java.util.ArrayList;
 
@@ -11,6 +11,7 @@ import java.util.ArrayList;
 public interface MessageService {
     public static final String MESSAGE_LABEL = "message";
 
-    public void send(ArrayList<RedcapSurveyRecord> records);
-    public ArrayList<RedcapSurveyRecord> receive();
+    public void send(ArrayList<EAVSurveyRecord> records);
+    public ArrayList<EAVSurveyRecord> receive();
+    public void clearQueue();
 }

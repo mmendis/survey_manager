@@ -8,8 +8,8 @@ import org.chip.ihl.surveymanager.config.WrapperConfiguration;
 import org.chip.ihl.surveymanager.config.test.TestConfig;
 import org.chip.ihl.surveymanager.jms.MessageConsumerBean;
 import org.chip.ihl.surveymanager.jms.MessageProducerBean;
+import org.chip.ihl.surveymanager.redcap.EAVSurveyRecord;
 import org.chip.ihl.surveymanager.redcap.RedcapData;
-import org.chip.ihl.surveymanager.redcap.RedcapSurveyRecord;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
@@ -35,6 +35,8 @@ public class MessageWrapperTest extends AbstractTestNGSpringContextTests {
     private Properties properties;
     private MessageService messageService;
     private WrapperConfiguration wrapperConfiguration;
+
+    private static final int MESSAGE_RECEIVE_TIMEOUT_MS = 5000;
 
     @BeforeTest
     public void setup() throws Exception {
@@ -76,10 +78,13 @@ public class MessageWrapperTest extends AbstractTestNGSpringContextTests {
     public void testMessageExchange() {
         messageService = messageService();
 
-        ArrayList<RedcapSurveyRecord> recordsToTest = new ArrayList<>();
+        // clear the queue
+        messageService.clearQueue();
+        // test the exchange
+        ArrayList<EAVSurveyRecord> recordsToTest = new ArrayList<>();
         recordsToTest.addAll(Arrays.asList(RedcapData.sampleRedcapRecords()));
         messageService.send(recordsToTest);
-        ArrayList<RedcapSurveyRecord> consumedRecords = messageService.receive();
+        ArrayList<EAVSurveyRecord> consumedRecords = messageService.receive();
         Assert.assertNotNull(consumedRecords);
 
         // perform some check that the lists are essentially equal
@@ -108,13 +113,16 @@ public class MessageWrapperTest extends AbstractTestNGSpringContextTests {
     }
 
     public JmsTemplate jmsTemplate() {
-        return new JmsTemplate(connectionFactory());
+        JmsTemplate template = new JmsTemplate(connectionFactory());
+        // don't wait for messages
+        template.setReceiveTimeout(MESSAGE_RECEIVE_TIMEOUT_MS);
+        return template;
     }
     public MessageProducerBean producerBean() {
         return new MessageProducerBean(jmsTemplate(), surveyQueue(), objectMapper());
     }
     public MessageConsumerBean consumerBean() {
-        return new MessageConsumerBean(jmsTemplate(), surveyQueue());
+        return new MessageConsumerBean(jmsTemplate(), surveyQueue(), objectMapper());
     }
 
     public MessageService messageService() {

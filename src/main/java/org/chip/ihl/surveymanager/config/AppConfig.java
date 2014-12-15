@@ -113,7 +113,7 @@ public class AppConfig {
     }
     @Bean
     public MessageConsumerBean consumerBean() {
-        return new MessageConsumerBean(jmsTemplate(), surveyQueue());
+        return new MessageConsumerBean(jmsTemplate(), surveyQueue(), objectMapper());
     }
 
     @Bean

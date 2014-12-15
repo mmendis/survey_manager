@@ -3,7 +3,7 @@ package org.chip.ihl.surveymanager.service;
 import org.chip.ihl.surveymanager.jms.MessageConsumerBean;
 import org.chip.ihl.surveymanager.jms.MessageProducerBean;
 import org.chip.ihl.surveymanager.jms.SurveyMessage;
-import org.chip.ihl.surveymanager.redcap.RedcapSurveyRecord;
+import org.chip.ihl.surveymanager.redcap.EAVSurveyRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,17 +25,27 @@ public class MessageWrapper implements MessageService {
     }
 
     @Override
-    public void send(ArrayList<RedcapSurveyRecord> records) {
+    public void send(ArrayList<EAVSurveyRecord> records) {
         producerBean.sendMessage(new SurveyMessage(records));
     }
 
     @Override
-    public ArrayList<RedcapSurveyRecord> receive() {
+    public ArrayList<EAVSurveyRecord> receive() {
         SurveyMessage message = consumerBean.receiveMessage();
         if (message != null) {
             return message.getRecords();
         } else {
             return null;
         }
+    }
+
+    @Override
+    public void clearQueue() {
+        // clear queue (by iteratively receiving messages until there are none
+        SurveyMessage surveyMessage = null;
+        do {
+            surveyMessage = consumerBean.receiveMessage();
+        } while (surveyMessage != null);
+
     }
 }

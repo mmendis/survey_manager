@@ -11,14 +11,14 @@ import java.util.List;
  */
 public class RedcapResult {
     private HttpStatus status;
-    private ArrayList<RedcapSurveyRecord> records;
+    private ArrayList<EAVSurveyRecord> records;
     private RedcapError redcapError;
 
     public RedcapResult() {
         this.records = new ArrayList<>();
         this.redcapError = new RedcapError();
     }
-    public RedcapResult(HttpStatus status, List<RedcapSurveyRecord> records, RedcapError error) {
+    public RedcapResult(HttpStatus status, List<? extends EAVSurveyRecord> records, RedcapError error) {
         this();
         this.status = status;
         this.records.addAll(records);
@@ -38,7 +38,7 @@ public class RedcapResult {
         return status;
     }
 
-    public ArrayList<RedcapSurveyRecord> getRecords() {
+    public ArrayList<EAVSurveyRecord> getRecords() {
         return records;
     }
 
@@ -49,4 +49,10 @@ public class RedcapResult {
     public void setRedcapError(RedcapError error) {
         this.redcapError = error;
     }
+
+//    public void setSurveyFormForRecords(String surveyForm) {
+//        for (EAVSurveyRecord record : records) {
+//            record.setSurveyForm(surveyForm);
+//        }
+//    }
 }

@@ -2,6 +2,7 @@ package org.chip.ihl.surveymanager.service;
 
 import org.chip.ihl.surveymanager.config.WrapperConfiguration;
 import org.chip.ihl.surveymanager.config.test.TestConfig;
+import org.chip.ihl.surveymanager.redcap.EAVSurveyRecord;
 import org.chip.ihl.surveymanager.redcap.RedcapResult;
 import org.chip.ihl.surveymanager.redcap.RedcapSurveyRecord;
 import org.mockito.Mock;
@@ -154,7 +155,7 @@ public class RedcapWrapperTest extends AbstractTestNGSpringContextTests {
     public void whenEventFoundPullRecordRequestReturnsThoseEventRecords() {
         RedcapResult result = validWrapper.pullRecordRequest(testBaseUrl, EAV_RECORD_TYPE, TEST_RECORD_ID, TEST_SURVEY_FORM, TEST_EVENT_NAME);
         Assert.assertEquals(HttpStatus.OK, result.getStatus());
-        List<RedcapSurveyRecord> records = result.getRecords();
+        List<EAVSurveyRecord> records = result.getRecords();
         if (records != null) {
             for (RedcapSurveyRecord surveyRecord : records) {
                 Assert.assertEquals(TEST_EVENT_NAME, surveyRecord.getEventName());
@@ -213,7 +214,7 @@ public class RedcapWrapperTest extends AbstractTestNGSpringContextTests {
         return new RedcapWrapper(wc);
     }
 
-    private HttpEntity<RedcapSurveyRecord> setupTestHttpEntity() {
+    private HttpEntity<EAVSurveyRecord> setupTestHttpEntity() {
         List<MediaType> acceptTypes = new ArrayList<>(1);
         acceptTypes.add(MediaType.APPLICATION_JSON);
         HttpHeaders headers = new HttpHeaders();
@@ -222,11 +223,11 @@ public class RedcapWrapperTest extends AbstractTestNGSpringContextTests {
         return new HttpEntity<>(headers);
     }
 
-    private ResponseEntity<RedcapSurveyRecord[]> goodResponse() {
+    private ResponseEntity<EAVSurveyRecord[]> goodResponse() {
         return new ResponseEntity<>(sampleRedcapRecords(), HttpStatus.OK);
     }
 
-    private ResponseEntity<RedcapSurveyRecord[]> unAuthorizedResponse() {
+    private ResponseEntity<EAVSurveyRecord[]> unAuthorizedResponse() {
         return new ResponseEntity<>(sampleRedcapRecords(), HttpStatus.UNAUTHORIZED);
     }
 
