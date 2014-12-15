@@ -111,7 +111,7 @@ public class MessageWrapperTest extends AbstractTestNGSpringContextTests {
         return new JmsTemplate(connectionFactory());
     }
     public MessageProducerBean producerBean() {
-        return new MessageProducerBean(jmsTemplate(), surveyQueue());
+        return new MessageProducerBean(jmsTemplate(), surveyQueue(), objectMapper());
     }
     public MessageConsumerBean consumerBean() {
         return new MessageConsumerBean(jmsTemplate(), surveyQueue());

@@ -109,7 +109,7 @@ public class AppConfig {
     }
     @Bean
     public MessageProducerBean producerBean() {
-        return new MessageProducerBean(jmsTemplate(), surveyQueue());
+        return new MessageProducerBean(jmsTemplate(), surveyQueue(), objectMapper());
     }
     @Bean
     public MessageConsumerBean consumerBean() {

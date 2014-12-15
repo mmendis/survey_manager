@@ -1,5 +1,6 @@
 package org.chip.ihl.surveymanager.jms;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,21 +17,37 @@ public class MessageProducerBean {
     private final Logger logger = LoggerFactory.getLogger(MessageProducerBean.class);
     private JmsTemplate jmsTemplate;
     private Destination destination;
+    private ObjectMapper objectMapper;
 
-    public MessageProducerBean(JmsTemplate jmsTemplate, Destination destination) {
+    public MessageProducerBean(JmsTemplate jmsTemplate, Destination destination, ObjectMapper objectMapper) {
         this.jmsTemplate = jmsTemplate;
         this.destination = destination;
+        this.objectMapper = objectMapper;
     }
 
+    /**
+     * sends out a message (in JSON format)
+     * @param surveyMessage the message to send
+     */
     public void sendMessage(final SurveyMessage surveyMessage) {
         jmsTemplate.send(destination, new MessageCreator() {
             @Override
             public Message createMessage(Session session) throws JMSException {
-                ObjectMessage message = session.createObjectMessage();
+                try {
+                    //ObjectMessage message = session.createObjectMessage();
+                    String textAsJson = "";
+                    TextMessage textMessage = session.createTextMessage();
                     if (surveyMessage != null && surveyMessage.getRecords() != null) {
-                        message.setObject(surveyMessage.getRecords());
+                        //message.setObject(surveyMessage.getRecords());
+                        textAsJson = objectMapper.writeValueAsString(surveyMessage.getRecords());
+                        textMessage.setText(textAsJson);
                     }
-                    return message;
+                    //return message;
+                    return textMessage;
+                } catch (JsonProcessingException e) {
+                    logger.error("Unable to convert message to json format", e);
+                    throw new JMSException("Unable to convert message to json format");
+                }
             }
         });
     }
