@@ -27,9 +27,8 @@ import javax.naming.NamingException;
  * Main application context class
  * Created by sboykin on 11/21/2014.
  */
-//@PropertySource("classpath:application.properties")
-//@PropertySource("file://WEB-INF/classes/application.properties")
 public class AppConfig {
+    private static final String DEFAULT_PROPERTIES_FILE = "surveymanager.default.properties";
     private final Logger logger = LoggerFactory.getLogger(AppConfig.class);
 
     @Bean
@@ -44,12 +43,12 @@ public class AppConfig {
         try {
             JndiTemplate jndiTemplate = new JndiTemplate();
             String propertiesFile = jndiTemplate.lookup("java:comp/env/myscilhsConfigFile", String.class);
+            // if fresh deployment, use default configuration
             if (propertiesFile == null) {
-                throw new RuntimeException("Could not find mySCILHS properties file string from JNDI");
+                throw new RuntimeException("Could not find mySCILHS properties file location from JNDI");
             } else {
-                //String propertiesFile = String.format("%s/application.properties", propertiesPath);
-//            PropertiesConfiguration pc = new PropertiesConfiguration("/WEB-INF/classes/application.properties");
-                PropertiesConfiguration pc = new PropertiesConfiguration(propertiesFile);
+//                PropertiesConfiguration pc = new PropertiesConfiguration(propertiesFile);
+                PropertiesConfiguration pc = retrievePropertiesConfiguration(propertiesFile);
                 pc.setReloadingStrategy(reloadingStrategy());
                 return pc;
             }
@@ -137,4 +136,31 @@ public class AppConfig {
         return source;
     }
 
+    // HELPERS
+    /**
+     * method to retrieve properties (if no property file in active location, load/store from defaults
+     * @param propertiesFile
+     * @return
+     */
+    private PropertiesConfiguration retrievePropertiesConfiguration(String propertiesFile) throws ConfigurationException {
+        if (propertiesFile == null || propertiesFile.isEmpty()) {
+            throw new RuntimeException("Properties file location is missing");
+        }
+        PropertiesConfiguration configToUse = null;
+        try {
+            PropertiesConfiguration pc = new PropertiesConfiguration(propertiesFile);
+            configToUse = pc;
+        } catch (ConfigurationException e) {
+            logger.warn("Active properties file not found in configuration location.  Loading from defaults.");
+            try { // copy from defaults and save to active location
+                configToUse = new PropertiesConfiguration(DEFAULT_PROPERTIES_FILE);
+                configToUse.setFileName(propertiesFile);
+                configToUse.save();
+            } catch (ConfigurationException ce2) {
+                logger.error(String.format("Problem loading default properties file (%s) into active location (%s)", DEFAULT_PROPERTIES_FILE, propertiesFile));
+                throw ce2;
+            }
+        }
+        return configToUse;
+    }
 }

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Context path="/">
     <!-- mySCILHS app configuration directory -->
-    <Environment name="myscilhsConfigFile" value="${catalina.home}/conf/myscilhs/application.properties" type="java.lang.String" />
+    <Environment name="myscilhsConfigFile" value="${catalina.home}/conf/myscilhs/surveymanager.properties" type="java.lang.String" />
 </Context>

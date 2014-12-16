@@ -61,9 +61,9 @@ public class ManagerPropertiesController {
     public String saveWrapperConfig(Model model, @Validated @ModelAttribute("wrapperConfig") WrapperConfiguration wc, BindingResult result) {
         String message = String.format("%s Successfully changed configuration.  The application must be reloaded (or the application server restarted) for the changes to take effect. %s", MESSAGE_SUCCESS_HEAD_TAG, MESSAGE_FOOTER_TAG);
         try {
-            //PropertiesConfiguration configuration = new PropertiesConfiguration("application.properties");
+            //PropertiesConfiguration configuration = new PropertiesConfiguration("surveymanager.default.properties");
             // first save Old properties to backup file just in case...
-            appProperties.save("application.properties.BACKUP");
+            appProperties.save("surveymanager.default.properties.BACKUP");
 
             // make sure validation passed
             //model.addAttribute("wrapperConfig", wc);
