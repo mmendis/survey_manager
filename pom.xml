@@ -14,6 +14,27 @@
   <name>survey-manager Maven Webapp</name>
   <url>http://maven.apache.org</url>
 
+  <profiles>
+    <profile>
+      <id>static</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <properties>
+        <testng.groups>static</testng.groups>
+      </properties>
+    </profile>
+    <profile>
+      <id>live</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+      </activation>
+      <properties>
+        <testng.groups>static,live</testng.groups>
+      </properties>
+    </profile>
+  </profiles>
+
   <dependencies>
 
     <!-- Spring dependencies -->
@@ -150,8 +171,16 @@
           <target>1.7</target>
         </configuration>
       </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>2.18</version>
+        <configuration>
+          <groups>${testng.groups}</groups>
+        </configuration>
+      </plugin>
     </plugins>
-    <finalName>survey-manager</finalName>
+    <finalName>surveymanager</finalName>
   </build>
   <repositories>
     <repository>

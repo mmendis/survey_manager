@@ -1,7 +1,6 @@
 package org.chip.ihl.surveymanager.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import junit.framework.Assert;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.chip.ihl.surveymanager.config.WrapperConfiguration;
@@ -13,6 +12,7 @@ import org.chip.ihl.surveymanager.redcap.RedcapData;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
+import org.testng.Assert;
 import org.testng.Reporter;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
@@ -74,7 +74,7 @@ public class MessageWrapperTest extends AbstractTestNGSpringContextTests {
      * Message that tests the sending and receiving of messages
      * (yes, this is actually an integration test)
      */
-    @Test
+    @Test(groups = "live")
     public void testMessageExchange() {
         messageService = messageService();
 
