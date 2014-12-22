@@ -8,6 +8,10 @@ import java.io.Serializable;
 /**
  * REDCap survey record returned from remote server
  * Created by sboykin on 11/22/2014.
+ *
+ * Copyright 2014, Boston Children's Hospital (http://chip.org).
+ *
+ *
  * TODO awful hack in here to duplicate the subject ID field as the unique record ID for serialization - look into
  */
 @JsonIgnoreProperties(ignoreUnknown = true)

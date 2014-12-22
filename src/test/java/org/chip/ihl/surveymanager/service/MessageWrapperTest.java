@@ -25,8 +25,11 @@ import java.util.Properties;
 
 /**
  * Tests interaction with messaging queue
- * Assumes configuration points to a valid MQ host location.  Failing tests can be caused to improper configuration
+ * 'live' tests assume configuration points to a valid MQ host location.  Failing tests can be caused to improper configuration
  * or a problem with external MQ
+ *
+ * Copyright 2014, Boston Children's Hospital (http://chip.org).
+ *
  * TODO flawed test dependent on what's on cue - should fix
  */
 @Test

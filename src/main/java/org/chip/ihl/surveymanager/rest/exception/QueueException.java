@@ -3,6 +3,8 @@ package org.chip.ihl.surveymanager.rest.exception;
 /**
  * Web endpoint not reachable
  * Created by sboykin on 12/5/2014.
+ *
+ * Copyright 2014, Boston Children's Hospital (http://chip.org).
  */
 public class QueueException extends RuntimeException {
     public QueueException(String error) {

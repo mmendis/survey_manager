@@ -7,6 +7,8 @@ import org.springframework.validation.Validator;
 
 /**
  * Created by sboykin on 12/9/2014.
+ *
+ * Copyright 2014, Boston Children's Hospital (http://chip.org).
  */
 public class ConfigValidator implements Validator {
     @Override

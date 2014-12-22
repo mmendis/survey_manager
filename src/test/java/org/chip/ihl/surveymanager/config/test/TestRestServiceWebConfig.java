@@ -9,6 +9,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 /**
  * Spring MVC configuration for test environment
  * Created by sboykin on 11/24/2014.
+ *
+ * Copyright 2014, Boston Children's Hospital (http://chip.org).
  */
 @Configuration
 @EnableWebMvc

@@ -1,9 +1,8 @@
 <%--
   Admin login page.
-  User: sboykin
   Date: 12/11/2014
-  Time: 8:06 AM
-  To change this template use File | Settings | File Templates.
+
+  Copyright 2014, Boston Children's Hospital (http://chip.org).
 --%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" isELIgnored="false" session="true" %>

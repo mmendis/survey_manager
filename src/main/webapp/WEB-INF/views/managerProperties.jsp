@@ -1,9 +1,8 @@
 <%--
   Main web-facing configuration page
-  User: sboykin
   Date: 12/9/2014
-  Time: 11:07 AM
-  To change this template use File | Settings | File Templates.
+
+  Copyright 2014, Boston Children's Hospital (http://chip.org).
 --%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>

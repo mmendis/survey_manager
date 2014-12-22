@@ -15,6 +15,8 @@ import java.util.ArrayList;
 /**
  * Bean to send messages to queue
  * Created by sboykin on 11/25/2014.
+ *
+ * Copyright 2014, Boston Children's Hospital (http://chip.org).
  */
 public class MessageConsumerBean {
     private final Logger logger = LoggerFactory.getLogger(MessageConsumerBean.class);

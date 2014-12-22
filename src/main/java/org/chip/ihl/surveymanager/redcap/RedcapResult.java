@@ -8,6 +8,8 @@ import java.util.List;
 /**
  * Stores results from remote REDCap survey call
  * Created by sboykin on 11/20/2014.
+ *
+ * Copyright 2014, Boston Children's Hospital (http://chip.org).
  */
 public class RedcapResult {
     private HttpStatus status;

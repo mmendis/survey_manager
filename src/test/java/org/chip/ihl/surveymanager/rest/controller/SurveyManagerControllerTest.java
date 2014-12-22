@@ -30,6 +30,11 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+/**
+ * Tests for SurveyManagerController.java
+ *
+ * Copyright 2014, Boston Children's Hospital (http://chip.org).
+ */
 @Test
 @ContextConfiguration(classes = {TestConfig.class, TestRestServiceWebConfig.class})
 @WebAppConfiguration

@@ -24,6 +24,8 @@ import java.util.List;
 /**
  * Manages web API calls to the REDCap server
  * Created by sboykin on 11/19/2014.
+ *
+ * Copyright 2014, Boston Children's Hospital (http://chip.org).
  */
 public class RedcapWrapper implements RedcapService {
     private final Logger logger = LoggerFactory.getLogger(RedcapWrapper.class);

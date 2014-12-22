@@ -13,6 +13,8 @@ import java.io.IOException;
 /**
  * Spring bean configuration for test cases
  * Created by sboykin on 11/21/2014.
+ *
+ * Copyright 2014, Boston Children's Hospital (http://chip.org).
  */
 @Configuration
 public class TestConfig {

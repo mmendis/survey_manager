@@ -2,6 +2,8 @@ package org.chip.ihl.surveymanager.config;
 
 /**
  * Created by sboykin on 12/9/2014.
+ *
+ * Copyright 2014, Boston Children's Hospital (http://chip.org).
  */
 public enum ManagerPropertyHeaders {
     REDCAP_API_TOKEN ("wrapper.redcap.api.token"),

@@ -7,6 +7,8 @@ import java.util.ArrayList;
 /**
  * Container for the payload that will be sent to message queue
  * Created by sboykin on 11/25/2014.
+ *
+ * Copyright 2014, Boston Children's Hospital (http://chip.org).
  */
 public class SurveyMessage {
     private String mailId;

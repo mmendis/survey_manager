@@ -8,6 +8,8 @@ import java.util.List;
 /**
  * external REDCap service interface
  * Created by sboykin on 11/21/2014.
+ *
+ * Copyright 2014, Boston Children's Hospital (http://chip.org).
  */
 public interface RedcapService {
     RedcapResult pullRecordRequest(String redcapBaseUrl, String recordType, String recordId, String surveyForm, String eventName);

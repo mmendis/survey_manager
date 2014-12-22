@@ -10,6 +10,8 @@ import org.springframework.web.servlet.view.InternalResourceViewResolver;
 /**
  * Spring MVC configuration
  * Created by sboykin on 12/9/2014.
+ *
+ * Copyright 2014, Boston Children's Hospital (http://chip.org).
  */
 @Configuration
 @ComponentScan(basePackages = {"org.chip.ihl.surveymanager.rest.controller"})

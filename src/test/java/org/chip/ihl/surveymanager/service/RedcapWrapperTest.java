@@ -30,6 +30,8 @@ import static org.chip.ihl.surveymanager.redcap.RedcapData.sampleRedcapRecords;
 /**
  * Tests REDCap wrapper functionality
  * Assumes configuration a) points to a valid REDCap server, b) has a valid, active API token and c) points to a project that has records in it (this part needs improvement)
+ *
+ * Copyright 2014, Boston Children's Hospital (http://chip.org).
  */
 @Test
 @ContextConfiguration(classes = TestConfig.class)

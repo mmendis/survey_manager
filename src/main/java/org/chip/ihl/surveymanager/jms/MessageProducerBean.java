@@ -12,6 +12,9 @@ import javax.jms.*;
 /**
  * Bean to send messages to queue
  * Created by sboykin on 11/25/2014.
+ *
+ * Copyright 2014, Boston Children's Hospital (http://chip.org).
+ *
  * TODO setup message sends to be asynchronous (to allow for longer timeouts)
  */
 public class MessageProducerBean {

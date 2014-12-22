@@ -1,3 +1,8 @@
+<%--
+  Simple main page
+
+  Copyright 2014, Boston Children's Hospital (http://chip.org).
+--%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" isELIgnored="false" session="true" %>
 <html>

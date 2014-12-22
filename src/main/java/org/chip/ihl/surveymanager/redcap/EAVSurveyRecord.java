@@ -5,8 +5,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 /**
  * RedcapSurveyRecord in EAV format
  * Created by sboykin on 11/19/2014.
+ *
+ * Copyright 2014, Boston Children's Hospital (http://chip.org).
  */
-//@JsonIgnoreProperties(ignoreUnknown = true)
 public class EAVSurveyRecord extends RedcapSurveyRecord {
     protected String fieldName;
     protected String value;

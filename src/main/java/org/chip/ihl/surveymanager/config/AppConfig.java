@@ -26,6 +26,8 @@ import javax.naming.NamingException;
 /**
  * Main application context class
  * Created by sboykin on 11/21/2014.
+ *
+ * Copyright 2014, Boston Children's Hospital (http://chip.org).
  */
 public class AppConfig {
     private static final String DEFAULT_PROPERTIES_FILE = "surveymanager.default.properties";

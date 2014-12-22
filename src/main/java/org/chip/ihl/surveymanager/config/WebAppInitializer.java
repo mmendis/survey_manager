@@ -1,19 +1,12 @@
 package org.chip.ihl.surveymanager.config;
 
-import org.springframework.web.WebApplicationInitializer;
-import org.springframework.web.context.ContextLoaderListener;
-import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
-import org.springframework.web.servlet.DispatcherServlet;
 import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
-
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRegistration;
 
 /**
  * Spring Web app initialization for deployment configuration
  * Created by sboykin on 11/24/2014.
+ *
+ * Copyright 2014, Boston Children's Hospital (http://chip.org).
  */
 //public class WebAppInitializer implements WebApplicationInitializer {
 public class WebAppInitializer extends AbstractAnnotationConfigDispatcherServletInitializer {

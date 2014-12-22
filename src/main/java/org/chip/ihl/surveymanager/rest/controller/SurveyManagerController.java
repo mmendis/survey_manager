@@ -19,6 +19,8 @@ import java.util.ArrayList;
 /**
  * Web service endpoints for for REDCap interaction
  * Created by sboykin on 11/23/2014.
+ *
+ * Copyright 2014, Boston Children's Hospital (http://chip.org).
  */
 @RestController
 public class SurveyManagerController {

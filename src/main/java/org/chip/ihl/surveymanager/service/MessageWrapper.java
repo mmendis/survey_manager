@@ -12,6 +12,8 @@ import java.util.ArrayList;
 /**
  * Implementation of MessageService
  * Created by sboykin on 11/25/2014.
+ *
+ * Copyright 2014, Boston Children's Hospital (http://chip.org).
  */
 public class MessageWrapper implements MessageService {
     private final Logger logger = LoggerFactory.getLogger(MessageWrapper.class);

@@ -22,6 +22,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 /**
  * Controller for loading and saving wrapper properties
  * Created by sboykin on 12/9/2014.
+ *
+ * Copyright 2014, Boston Children's Hospital (http://chip.org).
  */
 @Controller
 @RequestMapping("/admin/config")
