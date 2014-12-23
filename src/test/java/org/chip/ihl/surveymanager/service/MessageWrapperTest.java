@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2014, Boston Children's Hospital. All Rights Reserved.
+ *
+ * Developed by the Intelligent Health Lab at Children’s Hospital Informatics Program.
+ * For more information, see http://chip.org/ihlab and https://github.com/chb
+ */
+
 package org.chip.ihl.surveymanager.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -27,11 +34,6 @@ import java.util.Properties;
  * Tests interaction with messaging queue
  * 'live' tests assume configuration points to a valid MQ host location.  Failing tests can be caused to improper configuration
  * or a problem with external MQ
- *
- * © 2014, Boston Children's Hospital. All Rights Reserved.
- *
- * Developed by the Intelligent Health Lab at Children’s Hospital Informatics Program.
- * For more information, see http://chip.org/ihlab and https://github.com/chb
  *
  * TODO flawed test dependent on what's on cue - should fix
  */

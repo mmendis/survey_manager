@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2014, Boston Children's Hospital. All Rights Reserved.
+ *
+ * Developed by the Intelligent Health Lab at Children’s Hospital Informatics Program.
+ * For more information, see http://chip.org/ihlab and https://github.com/chb
+ */
+
 package org.chip.ihl.surveymanager.service;
 
 //import org.apache.log4j.Logger;
@@ -25,10 +32,6 @@ import java.util.List;
  * Manages web API calls to the REDCap server
  * Created by sboykin on 11/19/2014.
  *
- * © 2014, Boston Children's Hospital. All Rights Reserved.
- *
- * Developed by the Intelligent Health Lab at Children’s Hospital Informatics Program.
- * For more information, see http://chip.org/ihlab and https://github.com/chb
  */
 public class RedcapWrapper implements RedcapService {
     private final Logger logger = LoggerFactory.getLogger(RedcapWrapper.class);

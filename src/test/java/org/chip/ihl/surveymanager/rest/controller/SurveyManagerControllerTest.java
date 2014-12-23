@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2014, Boston Children's Hospital. All Rights Reserved.
+ *
+ * Developed by the Intelligent Health Lab at Children’s Hospital Informatics Program.
+ * For more information, see http://chip.org/ihlab and https://github.com/chb
+ */
+
 package org.chip.ihl.surveymanager.rest.controller;
 
 import org.chip.ihl.surveymanager.config.test.TestConfig;
@@ -33,10 +40,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * Tests for SurveyManagerController.java
  *
- * © 2014, Boston Children's Hospital. All Rights Reserved.
- *
- * Developed by the Intelligent Health Lab at Children’s Hospital Informatics Program.
- * For more information, see http://chip.org/ihlab and https://github.com/chb
  */
 @Test
 @ContextConfiguration(classes = {TestConfig.class, TestRestServiceWebConfig.class})
