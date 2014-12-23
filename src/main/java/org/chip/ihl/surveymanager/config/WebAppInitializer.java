@@ -6,7 +6,10 @@ import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatche
  * Spring Web app initialization for deployment configuration
  * Created by sboykin on 11/24/2014.
  *
- * Copyright 2014, Boston Children's Hospital (http://chip.org).
+ * © 2014, Boston Children's Hospital. All Rights Reserved.
+ *
+ * Developed by the Intelligent Health Lab at Children’s Hospital Informatics Program.
+ * For more information, see http://chip.org/ihlab and https://github.com/chb
  */
 //public class WebAppInitializer implements WebApplicationInitializer {
 public class WebAppInitializer extends AbstractAnnotationConfigDispatcherServletInitializer {

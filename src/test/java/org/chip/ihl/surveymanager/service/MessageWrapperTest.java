@@ -28,7 +28,10 @@ import java.util.Properties;
  * 'live' tests assume configuration points to a valid MQ host location.  Failing tests can be caused to improper configuration
  * or a problem with external MQ
  *
- * Copyright 2014, Boston Children's Hospital (http://chip.org).
+ * © 2014, Boston Children's Hospital. All Rights Reserved.
+ *
+ * Developed by the Intelligent Health Lab at Children’s Hospital Informatics Program.
+ * For more information, see http://chip.org/ihlab and https://github.com/chb
  *
  * TODO flawed test dependent on what's on cue - should fix
  */

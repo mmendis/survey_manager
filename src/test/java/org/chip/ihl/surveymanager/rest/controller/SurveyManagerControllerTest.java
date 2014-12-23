@@ -33,7 +33,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * Tests for SurveyManagerController.java
  *
- * Copyright 2014, Boston Children's Hospital (http://chip.org).
+ * © 2014, Boston Children's Hospital. All Rights Reserved.
+ *
+ * Developed by the Intelligent Health Lab at Children’s Hospital Informatics Program.
+ * For more information, see http://chip.org/ihlab and https://github.com/chb
  */
 @Test
 @ContextConfiguration(classes = {TestConfig.class, TestRestServiceWebConfig.class})
