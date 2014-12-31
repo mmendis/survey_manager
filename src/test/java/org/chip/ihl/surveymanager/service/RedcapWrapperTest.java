@@ -57,8 +57,8 @@ public class RedcapWrapperTest extends AbstractTestNGSpringContextTests {
 
     @Mock
     private RestTemplate mockRestTemplate;
-    @Qualifier("propertyConfigurer")
 
+    @Qualifier("propertyConfigurer")
     @BeforeTest(alwaysRun = true)
     public void setup() throws Exception {
         // setup mocks

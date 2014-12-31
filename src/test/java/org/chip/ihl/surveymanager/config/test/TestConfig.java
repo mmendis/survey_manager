@@ -11,10 +11,14 @@ import org.chip.ihl.surveymanager.service.MessageService;
 import org.chip.ihl.surveymanager.service.RedcapService;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.thymeleaf.ThymeleafAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.core.io.ClassPathResource;
 
+import javax.annotation.Resource;
 import java.io.IOException;
 
 /**
@@ -23,7 +27,11 @@ import java.io.IOException;
  *
  */
 @Configuration
+@EnableAutoConfiguration(exclude = ThymeleafAutoConfiguration.class)
 public class TestConfig {
+
+    @Resource
+    Environment environment;
 
     @Bean
     public PropertyPlaceholderConfigurer propertyConfigurer() throws IOException {
@@ -39,4 +47,11 @@ public class TestConfig {
 
     @Bean
     public MessageService messageServiceMock() { return Mockito.mock(MessageService.class);}
+
+//    @Bean
+//    public LocalSessionFactoryBean sessionFactoryBean() {
+//        LocalSessionFactoryBean sessionFactoryBean = new LocalSessionFactoryBean();
+//        sessionFactoryBean.setPackagesToScan(DB_ENTITY_PACKAGES);
+//        return sessionFactoryBean;
+//    }
 }

@@ -1,9 +1,9 @@
 <%--
-  Failed admin login landing page.
-  Date: 12/11/2014
-
-  Copyright 2014, Boston Children's Hospital (http://chip.org).
---%>
+  ~ Copyright (c) 2014, Boston Children's Hospital. All Rights Reserved.
+  ~
+  ~ Developed by the Intelligent Health Lab at Children’s Hospital Informatics Program.
+  ~ For more information, see http://chip.org/ihlab and https://github.com/chb
+  --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>

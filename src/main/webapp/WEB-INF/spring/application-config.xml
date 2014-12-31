@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2014, Boston Children's Hospital. All Rights Reserved.
+  ~
+  ~ Developed by the Intelligent Health Lab at Children’s Hospital Informatics Program.
+  ~ For more information, see http://chip.org/ihlab and https://github.com/chb
+  -->
+
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
@@ -6,5 +13,5 @@
 
        <context:property-placeholder location="classpath*:surveymanager.default.properties" />
        <!--<context:component-scan base-package="org.chip.ihl.surveymanager" />-->
-       <!--<bean id="objectMapper" class="com.fasterxml.jackson.databind.ObjectMapper" />-->
+       <!--<bean projectUrl="objectMapper" class="com.fasterxml.jackson.databind.ObjectMapper" />-->
 </beans>

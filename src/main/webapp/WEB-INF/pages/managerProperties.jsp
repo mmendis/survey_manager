@@ -1,9 +1,9 @@
 <%--
-  Main web-facing configuration page
-  Date: 12/9/2014
-
-  Copyright 2014, Boston Children's Hospital (http://chip.org).
---%>
+  ~ Copyright (c) 2014, Boston Children's Hospital. All Rights Reserved.
+  ~
+  ~ Developed by the Intelligent Health Lab at Children’s Hospital Informatics Program.
+  ~ For more information, see http://chip.org/ihlab and https://github.com/chb
+  --%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java"
